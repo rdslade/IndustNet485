@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Home</title>
+    <link rel="stylesheet" type="text/css" href="css/style.css" />
+    <link href="https://fonts.googleapis.com/css?family=Montserrat" rel="stylesheet"/>
+    <script language="JavaScript" src="js/support.js"></script>
+    <base target="data">
+</head>
+
+<body>
+    <div style="width: 100%">
+        <center style="font-size:65px"><strong>Industrial NET485 Configuration </strong></center>
+        <div style="width:100%;height:20px"></div>
+        <hr/>
+        <br/>
+        <div style="font-size: 30px;">
+            <center>Select a tab from the menu to configure or update your device</center>
+        </div>
+    </div>
+    <div style="width:100%;height:25px"></div>
+    <!-- <div class="wrapper">
+        <div class="round-menu-item"><img src="network.png"/></div>
+        <div class="round-menu-item"><img src="device.png"/></div>
+        <div class="round-menu-item"><img src="serial.png"/></div>
+    </div> -->
+    <div>
+        <a onclick="load(parent.document.getElementById('op0'),0)" class="welcome-menu">Home</a>
+        <div style="width:100%;height:35px"></div>
+        <a onclick="load(parent.document.getElementById('op1'),1)" class="welcome-menu">Device</a>
+        <a onclick="load(parent.document.getElementById('op2'),2)" class="welcome-menu">Network</a>
+        <a onclick="load(parent.document.getElementById('op3'),3)" class="welcome-menu">Serial</a>
+        <div style="width:100%;height:35px"></div>
+        <a onclick="load(parent.document.getElementById('op4'),4)" class="welcome-menu">Upload</a>
+        <a onclick="load(parent.document.getElementById('op5'),5)" class="welcome-menu">Test</a>
+        <a onclick="load(parent.document.getElementById('op6'),6)" class="welcome-menu">Mappings</a>
+    </div>
+</body>
+<style>
+    body {
+        background-color: lightgray;
+        text-align: center;
+        padding-top: 80px;
+        height: 100%;
+    }
+
+    a.welcome-menu {
+        color: #009989;
+        transition: all .4s ease;
+        text-decoration: none;
+        position: relative;
+        margin: 0px 20px;
+        font-size: 50px;
+        top: 0px;
+    }
+
+    a::before {
+        transform: rotate(0deg) scale(0);
+        color: rgba(255, 255, 255, 1);
+        transition: all .4s ease;
+        position: absolute;
+        font-size: 45px;
+        opacity: 0;
+        z-index: 2;
+        top: 100%;
+        right: 0;
+        left: 0;
+    }
+    a:nth-child(1)::before{
+        content: url(pics/home-negative.png);
+    }
+    a:nth-child(3)::before{
+        content: url(pics/device-negative.png);
+    }
+    a:nth-child(4)::before{
+        content: url(pics/network-negative.png);
+    }
+    a:nth-child(5)::before{
+        content: url(pics/serial-negative.png);
+    }
+    a:nth-child(7)::before{
+        content: url(pics/upload-negative.png);
+    }
+    a:nth-child(8)::before{
+        content: url(pics/test-negative.png);
+    }
+    a:nth-child(9)::before{
+        content: url(pics/mapping-negative.png);
+    }
+    a::after {
+        transition: opacity .3s ease;
+        background-color: #000;
+        pointer-events: none;
+        position: fixed;
+        height: 100%;
+        width: 100%;
+        content: '';
+        z-index: -2;
+        opacity: 0;
+        bottom: 0;
+        left: 0;
+    }
+
+    a:hover {
+        color: rgba(255, 255, 255, .7);
+        z-index: 1;
+        top: 45px;
+        cursor: pointer;
+    }
+
+    a:hover::before {
+        transform: rotate(360deg) scale(1);
+        opacity: 1;
+        top: -90%;
+    }
+
+    a:hover::after {
+        opacity: .65;
+    }
+
+</style>
+</html>

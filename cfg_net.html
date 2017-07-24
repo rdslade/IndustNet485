@@ -1,0 +1,203 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+
+<head>
+    <title>Network Setup</title>
+    <script language="JavaScript" src="js/support.js"></script>
+    <script language="JavaScript" src="js/http.js"></script>
+    <script language="JavaScript" src="js/val_net.js"></script>
+    <link rel="stylesheet" type="text/css" href="css/style.css" />
+    <link href="https://fonts.googleapis.com/css?family=Montserrat" rel="stylesheet">
+</head>
+
+<body class="cfg_page" onload="initPage()">
+    <center style="font-size:54px"><strong>Network Config</strong></center>
+    <hr>
+    <form name="form1">
+        <td>
+            <label style="font-size:24"><input type="radio" class="radchoice" id="r1" name="rad"/>Obtain IP Address from DHCP</label>
+        </td>
+        <table width="100%">
+            <tr>
+                <th width="30%" align="right">Host name:</th>
+                <th>
+                    <input type="text" name="dnsname" size="30" maxlength="20" 
+                           onkeyup="hostValid(this,'hostpic')"
+                           onblur="trimFld(this)"/>
+                </th>
+                <th><img class="invalid" id="hostpic" src="pics/trans.png"></th>
+            </tr>
+        </table>
+
+        <td>
+                <label style="font-size:24"><input type="radio" class="radchoice" id="r1" name="rad"/>Use the following configuration</label>
+        </td>
+        <table width="100%">
+            <tr>
+                <th width="30%" align="right">IP address:</th>
+                <th>
+                    <input type="text" id="ip4addr" name="ip4addr" size="30" maxlength="20" onkeyup="changeSettingIP(this,'ippic',0)" onblur="changeSettingIP(this,'ippic',0)"/>
+                </th>
+                <th><img class="invalid" id="ippic" src="pics/trans.png"></th>
+            </tr>
+            <tr>
+                <th width="30%" align="right">Subnet mask:</th>
+                <th>
+                    <input type="text" id="ip4subnet" name="ip4subnet" size="30" maxlength="20"  onkeyup="changeSettingSub(this)" onblur="changeSettingSub(this)"/>
+                </th>
+                <th><img class="invalid" id="subpic" src="pics/trans.png"></th>
+            </tr>
+            <tr>
+                <th width="30%" align="right">Gateway address:</th>
+                <th><input type="text" id="ip4gwaddr" onkeyup="changeSettingIP(this,'gatepic',2)" name="ip4gwaddr" size="30" maxlength="20" onblur="changeSettingIP(this,'ippic',2)"/></th>
+                <th><img class="invalid" id="gatepic" src="pics/trans.png"></th>
+            </tr>
+
+            <tr>
+                <th width="30%" align="right">DNS 1 address:</th>
+                <th><input type="text" id="ip4dns1addr" onkeyup="changeSettingIP(this,'dns1pic',3)" name="ip4dns1addr" size="30" maxlength="20" onblur="changeSettingIP(this,'dns1pic',4)"/></th>
+                <th><img class="invalid" id="dns1pic" src="pics/trans.png"></th>
+            </tr>
+
+            <tr>
+                <th width="30%" align="right">DNS 2 address:</th>
+                <th>
+                    <input type="text" id="ip4dns2addr" onkeyup="changeSettingIP(this,'dns2pic',3)" name="ip4dns2addr" size="30" maxlength="20" onblur="changeSettingIP(this,'dns2pic',4)"/>
+                </th>
+                <th><img class="invalid" id="dns2pic" src="pics/trans.png"></th>
+            </tr>
+
+        </table>
+        <h3 id="status" align="center"></h3>                                                     
+        <hr>
+        <center>
+                                                                                                                        
+            <input type="button" class="save" name="save_page" value="  Save  " onClick="return processForm()" />
+            <p id="post_status" style="visibility: hidden;"><b>--</b></p>
+        </center>
+        
+    </form>
+</body>
+<script language="javascript">
+
+    var fldVarPair = [
+      ["addrmode",    "lan.ipMode"],
+      ["dnsname",     "lan.dnsName"],
+      ["ip4addr",     "lan.ipAddr"],
+      ["ip4subnet",   "lan.ipSubnet"],
+      ["ip4gwaddr",   "lan.gwAddr"],
+      ["ip4dns1addr", "lan.dns1Addr"],
+      ["ip4dns2addr", "lan.dns2Addr"]
+    ];
+    var validArr = [0,0,0,0,0];
+    function changeSettingIP(x,str,num){
+        if(verifyIP(x,1,0,str)){
+            validArr[num]=1;
+        }
+        else
+            validArr[num]=0;
+    }
+    function changeSettingSub(x){
+        if(validSubnetMask(x)){
+            validArr[1]=1;
+        }
+        else
+            validArr[1]=0;
+    }
+    function initPage( )
+    {
+      loadData();
+    }
+
+    function setFormField(fnam, fval)
+    {
+      var f = document.form1;
+
+      switch (fnam)
+      {
+        case "addrmode":
+          if (clickRadioButton(f, fnam, fval))
+            updateIpMode();
+          else
+            alert("addrmode: value [" + fval + "] not supported");
+          break;
+
+        case "dnsname":
+          f.dnsname.value = fval;
+          break;
+
+        case "ip4addr":
+          f.ip4addr.value = fval;
+          break;
+
+        case "ip4subnet":
+          f.ip4subnet.value = fval;
+          break;
+
+        case "ip4gwaddr":
+          f.ip4gwaddr.value = fval;
+          break;
+
+        case "ip4dns1addr":
+          f.ip4dns1addr.value = fval;
+          break;
+
+        case "ip4dns2addr":
+          f.ip4dns2addr.value = fval;
+          break;
+
+        case "ethlink":
+          selectSet(f.ethlink, fval);
+          break;
+
+        default:
+          alert("No field for " + fnam);
+          break;
+      }
+    }
+    function processForm()
+    {
+        for(var i=0;i<validArr.length;i++){
+            if(!validArr[i]){
+                document.getElementById('status').innerHTML="Invalid input";
+                return;
+            }
+        }
+        var f = document.form1;
+        document.getElementById('status').innerHTML="";
+        var setList = "";
+        setList = appendSetPair(setList, "addrmode", valueRadioButton(f, "addrmode"));
+        setList = appendSetPair(setList, "ip4addr", f.ip4addr.value);
+        setList = appendSetPair(setList, "ip4subnet", f.ip4subnet.value);
+        setList = appendSetPair(setList, "ip4gwaddr", f.ip4gwaddr.value);
+        setList = appendSetPair(setList, "ip4dns1addr", f.ip4dns1addr.value);
+        setList = appendSetPair(setList, "ip4dns2addr", f.ip4dns2addr.value);
+        setList = appendSetPair(setList, "dnsname", f.dnsname.value);
+        //setList = appendSetPair(setList, "ethlink", selectGet(f.ethlink));
+        setPostStatus("Sending data ...");
+        HTTP.post("cgi-bin/set_cfg", setList, procPostReply);
+
+        return true;
+    }
+
+    function updateIpMode()
+    {
+      var f = document.form1;
+
+      if (valueRadioButton(f, "addrmode") == "dhcp"){
+        dhcp_disable = false;
+        document.getElementById("status").innerHTML="";
+      }
+      else
+        dhcp_disable = true;
+
+      f.dnsname.disabled = dhcp_disable;
+      f.ip4addr.disabled = !dhcp_disable;
+      f.ip4subnet.disabled = !dhcp_disable;
+      f.ip4gwaddr.disabled = !dhcp_disable;
+      f.ip4dns1addr.disabled = !dhcp_disable;
+      f.ip4dns2addr.disabled = !dhcp_disable;
+    }
+</script>
+
+</html>

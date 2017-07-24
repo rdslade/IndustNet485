@@ -1,0 +1,107 @@
+<html>  
+    <head>
+        <title>Mappings</title>
+        <link rel="stylesheet" type="text/css" href="css/style.css" />
+        <link href="https://fonts.googleapis.com/css?family=Montserrat" rel="stylesheet">
+        <script language="JavaScript" src="js/map.js"></script>
+        <script language="JavaScript" src="js/http.js"></script>
+        <script language="JavaScript" src="js/support.js"></script>
+    </head>
+    <body>
+        <table align='center' id="mapping-table">
+            <tr id="mappingHeader">
+                <th class="mappingh">Node ID (00-99)</th>
+                <th class="mappingh">MRC (00-FF)</th>
+                <th class="mappingh">SRC (00-FF)</th>
+                <th class="mappingh">Variable Type (00-FF)</th>
+                <th class="mappingh">Start Address (0000-FFFF)</th>
+                <th class="mappingh"># of Elements (0000-FFFF)</th>
+                <th class="mappingh">Validate</th>
+            </tr>
+            <tr class="fields">
+                <th class="mappingh"><input class="input1" onblur="validateField(2,this)" type=text/></th>
+                <th class="mappingh">
+                    <select class="input1">
+                        <option value=01>01</option>
+                        <option value=02>02</option>
+                    </select>
+                </th>
+                <th class="mappingh">
+                    <select class="input1">
+                        <option value=01>01</option>
+                        <option value=02>02</option>
+                    </select>
+                </th>
+                <th class="mappingh"><input class="input1" onblur="validateField(5,this)" type=text/></th>
+                <th class="mappingh"><input class="input1"onblur="validateField(6,this)" type=text/></th>
+                <th class="mappingh"><input class="input1" onblur="validateField(7,this)" type=text/></th>
+                <th class="mappingh"><button onclick="var x = finalValidate(1);sendRequest(x)">Validate</button></th>
+            </tr>
+        </table>
+<!--
+        <hr>
+        <table align='center' id="mapping-table">
+            <tr id="mappingHeader">
+                <th class="mappingh">Node ID (00-99)</th>
+                <th class="mappingh">MRC (00-FF)</th>
+                <th class="mappingh">SRC (00-FF)</th>
+                <th class="mappingh">Variable Type (00-FF)</th>
+                <th class="mappingh">Start Address (0000-FFFF)</th>
+                <th class="mappingh"># of Elements (0000-FFFF)</th>
+                <th class="mappingh">Validate</th>
+            </tr>
+            <tr class="fields">
+                <th class="mappingh"><input class="input2" onblur="validateField(2,this)" type=text/></th>
+                <th class="mappingh">
+                    <select class="input2">
+                        <option value=01>01</option>
+                        <option value=02>02</option>
+                    </select>
+                </th>
+                <th class="mappingh">
+                    <select class="input2">
+                        <option value=01>01</option>
+                        <option value=02>02</option>
+                    </select>
+                </th>
+                <th class="mappingh"><input class="input2" onblur="validateField(5,this)" type=text/></th>
+                <th class="mappingh"><input class="input2"onblur="validateField(6,this)" type=text/></th>
+                <th class="mappingh"><input class="input2" onblur="validateField(7,this)" type=text/></th>
+                <th class="mappingh"><button onclick="var x = finalValidate(2);sendRequest(x)">Validate</button></th>
+            </tr>
+        </table>
+        <hr>
+        <table align='center' id="mapping-table">
+            <tr id="mappingHeader">
+                <th class="mappingh">Node ID (00-99)</th>
+                <th class="mappingh">MRC (00-FF)</th>
+                <th class="mappingh">SRC (00-FF)</th>
+                <th class="mappingh">Variable Type (00-FF)</th>
+                <th class="mappingh">Start Address (0000-FFFF)</th>
+                <th class="mappingh"># of Elements (0000-FFFF)</th>
+                <th class="mappingh">Validate</th>
+            </tr>
+            <tr class="fields">
+                <th class="mappingh"><input class="input3" onblur="validateField(2,this)" type=text/></th>
+                <th class="mappingh">
+                    <select class="input3">
+                        <option value=01>01</option>
+                        <option value=02>02</option>
+                    </select>
+                </th>
+                <th class="mappingh">
+                    <select class="input3">
+                        <option value=01>01</option>
+                        <option value=02>02</option>
+                    </select>
+                </th>
+                <th class="mappingh"><input class="input3" onblur="validateField(5,this)" type=text/></th>
+                <th class="mappingh"><input class="input3"onblur="validateField(6,this)" type=text/></th>
+                <th class="mappingh"><input class="input3" onblur="validateField(7,this)" type=text/></th>
+                <th class="mappingh"><button onclick="var x = finalValidate(3);sendRequest(x)">Validate</button></th>
+            </tr>
+        </table>
+-->
+        <center><p id="post_status" style="visibility: visible;"><b>Post Status Reply</b></p></center>
+    </body>
+</html>

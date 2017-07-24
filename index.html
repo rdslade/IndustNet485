@@ -1,0 +1,192 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD html 4.0 transitional//EN">
+<html>
+    <script language="JavaScript" src="js/support.js"></script>
+    <script>
+        var home = ['Home','configuration','net485'];
+        var deviceSetup = ['Device configuration', 'configuration','device setup','name','location'];
+        var networkSetup= ['Network configuration','configuration','network setup','ip address','dhcp','subnet mask','gateway address','dns'];
+        var serialSetup = ['Serial configuration','configuration','serial setup','baud rate','data bits','parity','stop bits','rs mode'];
+        var upload = ['Upload','binary update','ram drive update'];
+        var test = ['Test','test','validate','Validate']
+        var all = [home,deviceSetup,networkSetup,serialSetup,upload,test];
+        
+        function search(){
+            var str = document.getElementById('searchbar').value;
+            str = str.toLowerCase();
+            if(!(str.length)){
+                clearSearchElements();
+                return;
+            }
+            var possible = [];
+            var i,j,k=1;
+            for(i=0;i<all.length;i++){
+                for(j=1;j<all[i].length;j++){
+                    if(all[i][j].indexOf(str)>=0){
+                        var div = document.getElementById('searchr'+k);
+                        div.style.visibility = "visible";
+                        div.innerHTML = all[i][j];
+                        div.style.fontSize = "18px";
+                        div.innerHTML = div.innerHTML+"\n"+all[i][0];
+                        document.getElementById('arrow-down').style.visibility = 'visible';
+                        //document.getElementById('break'+k).style.visibility = 'visible';
+                        k++;
+                    }
+                }
+            }
+            
+        }
+        function goTo(fld){
+            var str = fld.textContent;
+            var write = false;
+            var word = "";
+            var i;
+            for(i=0;i<str.length;i++){
+                if(str[i]==str[i].toUpperCase() && str[i]!=' ' && str[i]!="\n")
+                    write=true;
+                if(write)
+                    word+=str[i];
+            }
+            ;
+            for(i=0;i<all.length;i++){
+                if(word === all[i][0]){
+                    load(document.getElementById("op"+i),i);
+                    break;
+                }
+            }
+            clearSearchElements();
+        }
+        function clearSearchElements(){
+            var divs = document.getElementsByClassName("searchresult");
+            var breaks = document.getElementsByClassName("break");
+            var i;
+            for(i=0;i<divs.length;i++){
+                divs[i].style.visibility = 'hidden';
+                if(i<breaks.length)
+                    breaks[i].style.visibility = 'hidden';
+            }
+            document.getElementById('arrow-down').style.visibility = 'hidden'
+            document.getElementById("searchbar").value = "";
+        }
+        function startSearch(x,num){
+            if(!num)
+                x.placeholder = '       ';
+            else   
+                x.placeholder = ' Search..'
+        }
+        var PAGECTL = {};
+        PAGECTL.countdown = 0;
+        PAGECTL.interval = 0;
+        PAGECTL.statusNode = null;
+        function doReboot()
+        {
+          document.form1.reboot.disabled = true;
+          var el = document.getElementById("post_status");
+          for (var rn = el.firstChild; rn != null; rn = rn.firstChild)
+          {
+            if (rn.nodeType == 3)
+            {
+              PAGECTL.statusNode = rn;
+            }
+          }
+
+          if (PAGECTL.statusNode)
+          {
+            HTTP.post("cgi-bin/reboot", "", null);
+
+            PAGECTL.countdown = 30;
+            PAGECTL.statusNode.data = "Rebooting: " + PAGECTL.countdown;
+            el.style.visibility = "visible";
+            PAGECTL.interval = window.setInterval(doPageReload, 1000);
+            return true;
+          }
+          return false;
+        }
+
+        function doPageReload()
+        {
+          PAGECTL.countdown -= 1;
+          PAGECTL.statusNode.data = "Rebooting: " + PAGECTL.countdown;
+          if (PAGECTL.countdown == 0)
+          {
+            window.clearInterval(PAGECTL.interval);
+            top.location.replace("http://" + top.location.hostname);
+          }
+        }
+    </script>
+
+    <head>
+        <title id="main">Grid Connect Industrial NET485</title>
+        <link type="text/css" rel="stylesheet" href="css/style.css"/>
+        <script language="JavaScript" src="js/support.js"></script>
+        <script language="JavaScript" src="js/http.js"></script>
+        <link href="https://fonts.googleapis.com/css?family=Montserrat" rel="stylesheet">
+    
+    </head>
+    
+    <body onload="firstLoad();load(this,0);">
+        <div id="top-container">
+            <div id="logo-container">
+                <a target="_blank" href="https://www.gridconnect.com">
+                    <img id="logo" src="pics/gclogo.gif">
+                </a>
+            </div>
+            <h3>Software version: <!--#gcssi sw_ver --></h3>
+            <h3>MAC address: <!--#gcssi mac_addr--></h3>
+            <div id="clear"></div>
+        </div>
+        
+        <div class="space"></div>
+ 
+        <div id="middle-container">
+            <div id="menu-container">
+                <div id="op0" class="optsel" onmouseover="decorate(this,1)" onmouseout="decorate(this,2)" onclick="load(this,0);changeTitle('Grid Connect Industrial NET 485');">
+                    <div id="home" class="menu-link">Home</div>
+                    <img class="icon" style="position:relative;top:6px" src="pics/home.png"/>
+                </div>
+                <div class="optno"><div class="menu-text">Configure</div></div>
+                <div id="op1" class="optno" onmouseover="decorate(this,1)" onmouseout="decorate(this,2)" onclick="load(this,1);changeTitle('Device Configuration');">
+                    <div class="menu-link">Device</div>
+                    <img class="icon" src="pics/device.png"/>
+                    
+                </div>
+                <div id="op2" class="optno" onmouseover="decorate(this,1)" onmouseout="decorate(this,2)" onclick="load(this,2);changeTitle('Network Configuration');">
+                    <div class="menu-link">Network</div>
+                    <img class="icon" src="pics/network.png"/>
+                </div>
+                <div id="op3" class="optno" onmouseover="decorate(this,1)" onmouseout="decorate(this,2)" onclick="load(this,3);changeTitle('Serial Configuration');">
+                    <div class="menu-link">Serial</div>
+                    <img class="icon" style="position:relative;top:12px"src="pics/serial.png"/>
+                </div>
+                <div class="optno"><div class="menu-text">Update</div></div>
+                <div id="op4" class="optno" onmouseover="decorate(this,1)" onmouseout="decorate(this,2)" onclick="load(this,4);changeTitle('Update');">
+                    <div class="menu-link">Upload</div>
+                    <img class="icon" src="pics/upload.png"/>
+                </div>
+                <div id="op5" class="optno" onmouseover="decorate(this,1)" onmouseout="decorate(this,2)" onclick="load(this,5);changeTitle('Test Mapping');">
+                    <div class="menu-link">Test</div>
+                    <img class="icon" style="position:relative;top:6px" src="pics/test.png"/>
+                </div>
+                <hr>
+                <div id="search" class="optno" id="search">
+                    <input onfocus="startSearch(this,0)" onblur="startSearch(this,1)"onkeyup="search();" type="text" placeholder=" Search.." id="searchbar"/>
+                    <img id="searchpic" src="pics/search.png"/>
+                </div>
+                <div id="arrow-down"></div>
+                <div class="searchresult" onclick="goTo(this)" id="searchr1"></div>
+                <hr class="break" id="break1"/>
+                <div class="searchresult" onclick="goTo(this)" id="searchr2"></div>
+                <div id="reboot">
+                    <form name="form1" style="width:100%;text-align:center; padding-top: 10px;height:20px; margin: 0 auto;">
+                        <input id="rebootbutton" class="save" style="visibility:visible;right:15%;position:relative;" type="button" name="reboot" value="  Reboot  " onClick="return doReboot()" />
+                        <p id="post_status" style="position:relative;visibility: hidden;right:15%;"><b>--</b></p>
+                    </form>
+                </div>
+            </div>
+                <iframe id="child_p" scrolling="yes" frameborder="0" src=""></iframe>
+            
+            <div id="bottom" class="space"></div>
+        </div>
+        
+    </body>
+
+</html>

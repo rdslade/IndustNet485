@@ -1,0 +1,167 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+
+<head>
+<title>Port 0 Setup</title>
+<script language="JavaScript" src="js/support.js"></script>
+<script language="JavaScript" src="js/http.js"></script>
+<script language="JavaScript" src="js/val_net.js"></script>
+<link rel="stylesheet" type="text/css" href="css/style.css" />
+    <link href="https://fonts.googleapis.com/css?family=Montserrat" rel="stylesheet">
+</head>
+
+<body class="cfg_page" onload="initPage()">
+<div style="width: 100%">
+<div style="width:100%;height:20px"></div>
+<center style="font-size:50px"><strong>Serial Port Setup</strong></center>
+    <div style="width:100%;height:20px"></div>
+<hr />
+
+<form id="port0" name="form1" style="margin-top: 0;">
+
+<table id="port0" cellSpacing="5" cellPadding="0" width="90%" border="0">
+    <tr>
+        <th colspan="2" align="left" style="font-size:24px">Serial Port</th>
+    </tr>
+    
+    <tr>
+        <th class="datalabel" colspan="0" align="right" style="font-size:20px">Baud Rate:</th>
+        <th class="datavalue" colspan="0" align="left">
+            <select name="baudrate">
+                <option value="300">300</option>
+                <option value="600">600</option>
+                <option value="1200">1200</option>
+                <option value="2400">2400</option>
+                <option value="4800">4800</option>
+                <option value="9600">9600</option>
+                <option value="19200">19200</option>
+                <option value="38400">38400</option>
+                <option value="57600">57600</option>
+                <option value="115200">115200</option>
+                <option value="230400">230400</option>
+                <option value="460800">460800</option>
+                <option value="921600">921600</option>
+            </select>
+        </th>
+    </tr>
+        <th class="datalabel" colspan="0" align="right" style="font-size:20px">Data Bits:</th>
+        <th class="datavalue" colspan="0" align="left">
+            <select name="charsize">
+                <option value="5">5</option>
+                <option value="6">6</option>
+                <option value="7">7</option>
+                <option value="8">8</option>
+            </select>
+        </th>
+    <tr>
+        <th class="datalabel" align="right" style="font-size:20px">Parity:</th>
+        <th class="datavalue" align="left">
+            <select name="parity">
+                <option value="none">None</option>
+                <option value="even">Even</option>
+                <option value="odd">Odd</option>
+                <option value="mark">Mark</option>
+                <option value="space">Space</option>
+            </select>
+        </th>
+    </tr>
+    <tr>
+        <th class="datalabel" align="right" style="font-size:20px">Stop Bits:</th>
+        <th class="datavalue" align="left">
+            <select name="stopbits">
+                <option value="1">1</option>
+                <option value="2">2</option>
+            </select>
+        </th>
+    </tr>
+    <tr>
+        <th class="datalabel" align="right" style="font-size:20px">RS-Mode:</th>
+        <th class="datavalue" align="left">
+            <select name="rsmode">
+                <option value="rs422">RS-482</option>
+                <option value="rs485">RS-485</option>
+            </select>
+        </th>
+    </tr>
+    <tr>
+        <th colspan="2" height="40px" align="right" style="font-size:20px"></th>
+    </tr>
+</table>
+
+<center>
+<input class="save" type="button" name="save_page" value="  Save  " onClick="return processForm()" />
+<p id="post_status" style="visibility: hidden;"><b>--</b></p>
+</center>
+
+</form>
+</div>
+</body>
+
+<script language="javascript">
+<!--
+
+var fldVarPair = [
+  ["baudrate", "port0.baudrate"],
+  ["charsize", "port0.charSize"],
+  ["parity",   "port0.parity"],
+  ["stopbits", "port0.stopBits"],
+  ["rsmode",   "port0.rsMode"]
+];
+
+function initPage( )
+{
+  loadData();
+}
+
+function setFormField(fnam, fval)
+{
+  var f = document.form1;
+
+  switch (fnam)
+  {
+    case "baudrate":
+      selectSet(f.baudrate, fval);
+      break;
+
+    case "charsize":
+      selectSet(f.charsize, fval);
+      break;
+
+    case "parity":
+      selectSet(f.parity, fval);
+      break;
+
+    case "stopbits":
+      selectSet(f.stopbits, fval);
+      break;
+
+    case "rsmode":
+      selectSet(f.rsmode, fval);
+      break;
+
+    default:
+      alert("No field for " + fnam);
+      break;
+  }
+}
+
+function processForm()
+{
+    var f = document.form1;
+    var setList = "";
+    setList = appendSetPair(setList, "baudrate", selectGet(f.baudrate));
+    setList = appendSetPair(setList, "charsize", selectGet(f.charsize));
+    setList = appendSetPair(setList, "parity", selectGet(f.parity));
+    setList = appendSetPair(setList, "stopbits", selectGet(f.stopbits));
+    setList = appendSetPair(setList, "rsmode", selectGet(f.rsmode));
+
+    setPostStatus("Sending data ...");
+    HTTP.post("cgi-bin/set_cfg", setList, procPostReply);
+
+    return true;
+}
+
+// End of script -->
+</script>
+
+</html>

@@ -1,0 +1,267 @@
+body {
+  font-size: 16px;
+  font-weight: normal;
+  margin: 0px;
+  background-color: lightgray;
+  font-family: 'Montserrat', sans-serif;
+  overflow-x:hidden;
+}
+h3{
+    color:white;
+}
+input:focus{
+    outline: none;
+}
+#holder{
+    width:300px;
+    height:300px;
+    margin: 0 auto;
+    text-align: center;
+    font-size: 100px; 
+}
+#holder:hover{
+    color: #009899;
+}
+/* ------------------------------------------------------------------------------------ */
+#top-container{
+    width: 100%;
+    margin: auto;
+    background-color: #009899;
+    padding: 5px;
+}
+#logo{
+    padding-left: 50px;
+    padding-top: 10px;
+}
+#logo-container{
+    width:65%;
+    float: left;
+    height: 100;
+    background-color: #009899;
+}
+#banner{
+    width: 450%;
+    float: left;
+    height: 85px;
+    background-color: #009899;
+    text-align: center;
+}
+#clear{
+    clear: both;
+}
+#search{
+    border-radius: 10px;
+    display:inline-block;
+    height: 50px;
+}
+#searchbar{
+    height:100%;
+    display: inline-block;
+    width:80%;
+    border:none;
+    border-radius: 10px;
+    padding-left: 10px;
+}
+.searchresult{
+    height:55px;
+    white-space: pre;
+    border-radius: 5px;
+    line-height:30px;
+    font-size:14px;
+    background-color: white;
+    text-align: center;
+    visibility: hidden;
+    color: black;
+    border: 2px solid black;
+}
+.searchresult:hover{
+    text-shadow: 0px 0px 12px rgba(0,152,153,1);
+    cursor: pointer;
+}
+#searchpic{
+    margin: 0 auto;
+    vertical-align: middle;
+}
+#arrow-down {
+  width: 0; 
+  height: 0; 
+  border-left: 15px solid transparent;
+  border-right: 15px solid transparent;
+  border-top: 25px solid white;
+  visibility: hidden;
+  margin: 0 auto;
+}
+.break{
+    visibility: hidden;
+}
+/* ------------------------------------------------------------------------------------ */
+
+.space{
+    clear:left;
+    width:100%;
+    height:5px;
+    background-color: lightgrey;
+}
+#menu-container{
+    width:15%;
+    float:left;
+}
+#home{
+    font-size: 24px;
+    padding-top:5px;
+    padding-left:15%;
+}
+.optsel{
+    height:40px;
+    width:100%;
+    color:White;
+    background-color: #009899;
+    cursor: text;
+}
+.optno{
+    height:40px;
+    width:100%;
+    color:Black;
+    background-color: White;
+    cursor: pointer;
+}
+.menu-text{
+    padding-left: 10px;
+    padding-top: 5px;
+    text-align: left;
+    font-size: 24px;
+    cursor: text;
+    display: inline-block;
+}
+.menu-link{
+    text-align:right;
+    padding-top: 10px;
+    font-size:18px;
+    width:50%;
+    display: inline-block;
+    vertical-align: middle;
+}
+.icon{
+    float: right;
+    display: inline-block;
+    vertical-align: middle;
+    position: relative;
+    top: 5px;
+    right:10px;
+}
+#reboot{
+    width:100%;
+    margin: 0 auto;
+    padding-left: 30px;
+    
+}
+/* ------------------------------------------------------------------------------------ */
+#child_p{
+    width:82%;
+    height:80%;
+    margin:10px;
+    margin-top:0px;
+    float:left;
+    overflow-y:scroll;
+    position: relative;
+}
+#middle-container{
+    width: 100%;
+    margin: auto;
+    padding: 10px;
+}
+/* ------------------------------------------------------------------------------------ */
+form{
+    margin: 0 auto;
+    width:50%;
+}
+
+save{
+    cursor:pointer;
+}
+th{
+    padding: 10px
+}
+input{
+    height:30px;
+    font-size: 16px;
+    width: 75%;
+}
+.radchoice{
+    width:5%;
+    height:30px;
+    vertical-align: middle;
+}
+select{
+    height: 30px;
+    font-size:16px;
+}
+#binup{
+    width:250px;
+    font-size:20px;
+}
+.save {
+  display: inline-block;
+  border-radius: 4px;
+  background-color: #009899;
+  border: none;
+  color: #FFFFFF;
+  text-align: center;
+  font-size: 24px;
+  padding: 10px;
+  width: 125px;
+  transition: all 0.5s;
+  cursor: pointer;
+  height: 50px;
+  
+}
+.save:hover{
+    box-shadow: 0 12px 20px 0 rgba(0,0,0,0.24), 0 17px 50px 0 rgba(0,0,0,0.19);
+}
+/* ------------------------------------------------------------------------------------ */
+#mapping-table{
+    width:75%;
+    border: 2px solid black;
+}
+.mappingh{
+    height: 50px;
+    color: white;
+}
+#mappingHeader{
+    background-color: #009899;
+}
+#buttons-container{
+    padding: 40px;
+    margin: 0 auto;
+    text-align: center;
+}
+#add , #delete{
+    display: inline-block;
+    width: 250px;
+    margin: auto;
+}
+#num-adds{
+    width: 30px;
+    padding-left:5px;
+}
+#select-all:hover{
+    text-decoration: underline;
+    cursor: pointer;
+}
+
+.round-menu-item{
+    width:50px;
+    height:50px;
+    border-color: black;
+    margin: auto;
+    display: inline-block;
+    text-align: center;
+    vertical-align: middle;
+    padding-right:10px;
+    padding-left:10px;
+    padding-top: 10px;
+    background-color: red;
+}
+.wrapper{
+    text-align: center;
+}
