@@ -1,0 +1,62 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+    <head>
+        <title>Mappings</title>
+        <link rel="stylesheet" type="text/css" href="css/style.css" />
+        <link href="https://fonts.googleapis.com/css?family=Montserrat" rel="stylesheet">
+        <script language="JavaScript" src="js/map.js"></script>
+        <script language="JavaScript" src="js/support.js"></script>
+        <script language="JavaScript" src="js/http.js"></script>
+    </head>
+    <body onload="">
+        <table align='center' id="mapping-table">
+            <tr id="mappingHeader">
+                <th class="mappingh">Node ID (00-99)</th>
+                <th class="mappingh">MRC (00-FF)</th>
+                <th class="mappingh">SRC (00-FF)</th>
+                <th class="mappingh">Variable Type (00-FF)</th>
+                <th class="mappingh">Start Address (0000-FFFF)</th>
+                <th class="mappingh"># of Elements (0000-FFFF)</th>
+                <th class="mappingh">Submit Mapping</th>
+                <!--<th id="select-all" onclick="selectAll()" class="mappingh">Select All</th>-->
+            </tr>
+            <tr>
+                <th><input class="input1"type="text"/></th>
+                <th>
+                    <select class="input1">
+                        <option>01</option>
+                    </select>
+                </th>
+                <th>
+                    <select class="input1">
+                        <option>01</option>
+                        <option>02</option>
+                    </select>
+                </th>
+                <th><input class="input1" type="text"/></th>
+                <th><input class="input1" type="text"/></th>
+                <th><input class="input1" type="text"/></th>
+                <th><input onclick="processForm(this.id)"type="button" value="Submit" id="00"/></th>
+            </tr>
+        </table>
+        <center><p id="post_status"></p></center>
+        <div id="clear"></div>
+    </body>
+    <script>
+        function processForm(id)
+        {
+          debugger;
+          var header = "map"+id+".";
+          var list = ['nodeid','mrc','src','vartype','start','num']
+          var inputs = document.getElementsByClassName('input1');
+          var data = "";
+          for(var i=0;i<inputs.length;i++){
+              data+=header+list[i]+"="+inputs[i].value+"&"
+          }
+          setPostStatus("Sending data ...");
+          HTTP.post("cgi-bin/set_map", data, procPostReply);
+
+          return true;
+        }
+    </script>
+</html>

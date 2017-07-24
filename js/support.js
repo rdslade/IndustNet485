@@ -301,7 +301,7 @@ function load(e,v){
             child.src = "mapping-test.html";
             break;
         case(6):
-            child.src = "mappings.html";
+            child.src = "mappings-static.html";
             break;
     }
 }

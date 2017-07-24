@@ -244,6 +244,13 @@ function Comparator(a,b){
     if(a[0]<b[0]) return -1;
     if(a[0]>b[0]) return 1;
 }
-
+function loadData(){
+    debugger;
+    var url = "cgi-bin/get_cfg";
+    HTTP.post(url,"",handler)
+}
+function handler(procText){
+    document.getElementById('toDevice').innerHTML = procText;
+}
 
 

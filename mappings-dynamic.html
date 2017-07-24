@@ -5,8 +5,9 @@
         <link rel="stylesheet" type="text/css" href="css/style.css" />
         <link href="https://fonts.googleapis.com/css?family=Montserrat" rel="stylesheet">
         <script language="JavaScript" src="js/map.js"></script>
+        <script language="JavaScript" src="js/http.js"></script>
     </head>
-    <body onload="sortMappings();localStorage.rowI=0;loadMappings();localStorage.rowI = localStorage.numMappings">
+    <body onload="loadData();sortMappings();localStorage.rowI=0;loadMappings();localStorage.rowI = localStorage.numMappings">
         <table align='center' id="mapping-table">
             <tr id="mappingHeader">
                 <th class="mappingh">ID</th>
