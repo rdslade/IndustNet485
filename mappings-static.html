@@ -8,7 +8,8 @@
         <script language="JavaScript" src="js/support.js"></script>
         <script language="JavaScript" src="js/http.js"></script>
     </head>
-    <body onload="">
+    <body onload="getData()">
+        <form name="form1">
         <table align='center' id="mapping-table">
             <tr id="mappingHeader">
                 <th class="mappingh">Node ID (00-99)</th>
@@ -21,28 +22,37 @@
                 <!--<th id="select-all" onclick="selectAll()" class="mappingh">Select All</th>-->
             </tr>
             <tr>
-                <th><input class="input1"type="text"/></th>
+                <th><input name="nodeid" class="input1"type="text"/></th>
                 <th>
-                    <select class="input1">
+                    <select name="mrc" class="input1">
                         <option>01</option>
                     </select>
                 </th>
                 <th>
-                    <select class="input1">
+                    <select name="src" class="input1">
                         <option>01</option>
                         <option>02</option>
                     </select>
                 </th>
-                <th><input class="input1" type="text"/></th>
-                <th><input class="input1" type="text"/></th>
-                <th><input class="input1" type="text"/></th>
+                <th><input name="vartype" class="input1" type="text"/></th>
+                <th><input name="start" class="input1" type="text"/></th>
+                <th><input name="num" class="input1" type="text"/></th>
                 <th><input onclick="processForm(this.id)"type="button" value="Submit" id="00"/></th>
             </tr>
         </table>
+        </form>
         <center><p id="post_status"></p></center>
         <div id="clear"></div>
     </body>
     <script>
+        var fldVarPair = [
+              ["nodeid", "map00.nodeid"],
+              ["mrc",     "map00.mrc"],
+              ["src",     "map00.src"],
+              ["vartype",   "map00.vartype"],
+              ["start",   "map00.start"],
+              ["num", "map00.num"],
+        ];
         function processForm(id)
         {
           debugger;
@@ -57,6 +67,10 @@
           HTTP.post("cgi-bin/set_map", data, procPostReply);
 
           return true;
+        }
+        function getData(){
+            debugger;
+            loadMapData();
         }
     </script>
 </html>

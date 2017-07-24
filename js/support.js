@@ -10,7 +10,17 @@ function loadData()
 
   HTTP.post("cgi-bin/get_cfg", getList.join(','), procDataReply);
 }
+function loadMapData(){
+    var getList = [];
+    var i;
+    
+    setPostStatus("Loading form...");
+    
+    for (i = 0; i < fldVarPair.length; i++)
+        getList.push(fldVarPair[i][1]);
 
+    HTTP.post("cgi-bin/get_map", getList.join(','), procDataReply);
+}
 function procDataReply(replyText)
 {
   var f = document.form1;
