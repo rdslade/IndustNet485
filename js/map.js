@@ -86,7 +86,6 @@ function selectAll(){
     }
 }
 function pressSubmit(but,str){
-    debugger;
     var rowIndex;
     if(str.length==4)
         rowIndex = str[str.length-1];
@@ -98,11 +97,20 @@ function pressSubmit(but,str){
     }
     var row = document.getElementById("row"+rowIndex);
     var arr = [];
-    for(var i=0;i<row.childElementCount;i++){
-        if(row.childNodes[i].childNodes[0].name === 'mytextbox'){
+    for(var i=0;i<NUM_COLS-2;i++){
+        //TODO: PRECHECK (done) and then actual validation Here
+        if(row.childNodes[i].childNodes[0].name === 'mytextbox' && row.childNodes[i].childNodes[0].value){
             arr.push(row.childNodes[i].childNodes[0].value)
             row.childNodes[i].childNodes[0].readOnly = true;
             row.childNodes[i].childNodes[0].style.color = "lightgreen";
+        }
+        else{
+            for(i=0;i<NUM_COLS-2;i++){
+                row.childNodes[i].childNodes[0].style.color = "red";
+                row.childNodes[i].childNodes[0].readOnly = false;
+            }
+            document.getElementById('toDevice').innerHTML = "Invalid Submission";
+            return;
         }
     }
     var parsed = JSON.parse(localStorage.allMappings);
@@ -210,7 +218,6 @@ function validateHelper(fld,max,n){
     }
 }
 function finalValidate(num){
-    debugger;
     var arr = [];
     var children = document.getElementsByClassName('input'+num);
     for(var i=0;i<children.length;i++){
