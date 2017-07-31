@@ -1,0 +1,175 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+
+<head>
+<title>Status</title>
+<script language="JavaScript" src="js/support.js"></script>
+<script language="JavaScript" src="js/map.js"></script>
+<script language="JavaScript" src="js/http.js"></script>
+<link rel="stylesheet" type="text/css" href="css/style.css" />
+<link href="https://fonts.googleapis.com/css?family=Montserrat" rel="stylesheet">
+</head>
+
+<body class="cfg_page" onload="load();getData(0,100);">
+    
+    <div style="width:100%;height:20px"></div>
+
+    <center style="font-size:54px;line-height:.5"><strong>Status</strong></center>
+    <div style="width:100%;height:20px"></div>
+    <hr>
+    <div style="width:100%;height:25%;position:relative;overflow:scroll;text-align:center;overflow:hidden">
+        <div id="deviceBox" class="statusBox">
+            <p class="statusHead"><strong>Device Status</strong></p>
+            <p class="statusL"></p>
+            <p class="statusL"></p>
+        </div>
+        <div id="networkBox" class="statusBox">
+            <p class="statusHead"><strong>Network Status</strong></p>
+            <p class="statusL"></p>
+            <p class="statusL"></p>
+            <p class="statusL"></p>
+        </div>
+        <div id="serialBox" class="statusBox">
+            <p class="statusHead"><strong>Serial Status</strong></p>
+            <p class="statusL"></p>
+            <p class="statusL"></p>
+            <p class="statusL"></p>
+            <p class="statusL"></p>
+            <p class="statusL"></p>
+        </div>
+        <div id="deviceBox" class="statusBox">
+            <p class="statusHead"><strong>EtherNet/IP Status</strong></p>
+            <p class="statusL">Module Status: ***insert here***</p>
+            <p class="statusL">Network Status: ***insert here***</p>
+        </div>
+    </div>
+    <div style="position:relative; height: 60%;text-align:center;">
+        <div class="assembly">
+            <p class="statusHead"><strong>Input Assembly Size - ***#*** bytes</strong></p>
+            <div>
+                <table class="asmTab" id="input">
+                    <tr>
+                        <th class="asmTh">Map Number</th>
+                        <th class="asmTh">Data Size</th>
+                        <th class="asmTh">Status</th>
+                    </tr>
+                </table>
+            </div>
+        </div>
+        <div class="assembly">
+            <p class="statusHead"><strong>Output Assembly Size - ***#*** bytes</strong></p>
+            <div>
+                <table class="asmTab" id="output">
+                    <tr>
+                        <th class="asmTh">Map Number</th>
+                        <th class="asmTh">Data Size</th>
+                        <th class="asmTh">Status</th>
+                    </tr>
+                </table>
+            </div>
+        </div>
+    </div>
+</body>
+    <script>
+        function load()
+        {
+          var fldVarPair = [
+              ["devname", "device.name"],
+              ["devloc", "device.location"],
+              ["ip4addr",     "lan.ipAddr"],
+              ["ip4subnet",   "lan.ipSubnet"],
+              ["ip4gwaddr",   "lan.gwAddr"],
+              ["baudrate", "port0.baudrate"],
+              ["charsize", "port0.charSize"],
+              ["parity",   "port0.parity"],
+              ["stopbits", "port0.stopBits"],
+              ["rsmode",   "port0.rsMode"]
+            ];
+          var getList = [];
+          var i;
+
+          setPostStatus("Loading form ...");
+
+          for (i = 0; i < fldVarPair.length; i++)
+            getList.push(fldVarPair[i][1]);
+
+          HTTP.post("cgi-bin/get_cfg", getList.join(','), placeDataFields);
+        }
+        function placeDataFields(reply){
+            var vals = reply.split(',');
+            var flds = document.getElementsByClassName('statusL');
+            var lbls = ["Device Name: ","Device Location: ","IP Address: ","Subnet Mask: ","Gateway Address: ","Baud Rate: ","Data Bits: ","Parity: ","Stop Bits: ","RS-Mode: ","Module Status: ","Network Status: "]
+            for(var i=0;i<vals.length;i++){
+                flds[i].innerHTML = lbls[i]+vals[i].split('=')[1];
+            }
+        }
+        function doGetData(reply){
+            if(reply.slice(-1)==="1"){
+                i = reply.slice(3,5);
+                fldVarPair = [
+                    ["nodeid"+i,"map"+i+".nodeid"],
+                    ["mrcsrc"+i,"map"+i+".mrcsrc"],
+                    ["vartype"+i,"map"+i+".vartype"],
+                    ["start"+i,"map"+i+".start"],
+                    ["num"+i,"map"+i+".num"],
+                    ["bytes"+i,"map"+i+".bytes"]
+                ]
+                loadMapData();
+            }
+        }
+        function loadMapData(){
+            var getList = [];
+            var i;
+
+            setPostStatus("Loading form...");
+
+            for (i = 0; i < fldVarPair.length; i++)
+                getList.push(fldVarPair[i][1]);
+
+            HTTP.post("cgi-bin/get_map", getList.join(','), addMapToTable);
+        }
+        function addMapToTable(reply){
+            var arr = reply.split(',');
+            var mrcsrc = arr[1].slice(-4);
+            var bytes = arr[5].split('=')[1];
+            var num = arr[0].slice(3,5);
+            var tab;
+            if(mrcsrc==="0101"){
+                tab=document.getElementById('input');
+            }
+            else{
+                tab=document.getElementById('output')
+            }
+            
+            var row = tab.insertRow(-1);
+            row.setAttribute('class','asmTr');
+            
+            var cell1 = row.insertCell(0);
+            var cell2 = row.insertCell(1);
+            var cell3 = row.insertCell(2);
+            cell1.setAttribute('class','asmTd');
+            cell2.setAttribute('class','asmTd');
+            cell3.setAttribute('class','asmTd');
+            
+            var div1 = document.createElement('div');
+            var div2 = document.createElement('div');
+            var div3 = document.createElement('div');
+            div1.setAttribute('class','asmDiv');
+            div2.setAttribute('class','asmDiv');
+            div3.setAttribute('class','asmDiv');
+            
+            var a = document.createTextNode("Map "+num);
+            var b = document.createTextNode(bytes+" bytes")
+            var i = document.createElement('img');
+            i.setAttribute('src','pics/check.png');
+            
+            div1.appendChild(a);
+            div2.appendChild(b);
+            div3.appendChild(i)
+            
+            cell1.appendChild(div1);
+            cell2.appendChild(div2);
+            cell3.appendChild(div3);
+        }
+    </script>
+</html>

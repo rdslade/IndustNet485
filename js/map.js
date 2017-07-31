@@ -165,15 +165,15 @@ function indexOfArray(val, array) {
     return (hash.hasOwnProperty(val)) ? hash[val] : -1;
 }
 function validateField(num,fld){
+    fld.value = fld.value.toUpperCase();
     /*
     Options:
         1- internal ID
         2- node ID
-        3- MRC
-        4- SRC
-        5- variable type
-        6- start address
-        7- # of elements
+        3- MRC/SRC
+        4- variable type
+        5- start address
+        6- # of elements
     */
     var pat1 = /[^0-9]/;
     var pat2 = /[^0-9 ^a-f ^A-F]/
@@ -187,7 +187,10 @@ function validateField(num,fld){
             return false;
         }
     }
-    else if(num>=3 && num<=5){
+    else if(num==3){
+        return true;
+    }
+    else if(num==4){
         if(!pat2.test(fld.value) && fld.value.length==2){
             var n = parseInt(fld.value,16);
             return validateHelper(fld,255,n);
@@ -197,7 +200,7 @@ function validateField(num,fld){
             return false;
         }
     }
-    else if(num>=6 && num<=7){
+    else if(num>=5 && num<=6){
         if(!pat2.test(fld.value) && fld.value.length==4){
             var n = parseInt(fld.value,16);
             return validateHelper(fld,65535,n);
@@ -222,7 +225,7 @@ function finalValidate(num){
     var children = document.getElementsByClassName('input'+num);
     for(var i=0;i<children.length;i++){
         var str = children[i].type;
-        if(children[i].style.color!='green' && !str==="select-one"){
+        if(children[i].style.color!='green' && !str==="select"){
             alert("Fields entered incorrectly");
             return;
         }
@@ -231,9 +234,9 @@ function finalValidate(num){
     return arr;
 }
 function sendRequest(x){
-    var url = "cgi-bin/set_cfg";
-    var data = "map.nodeid="+x[0]+"&map.mrc="+x[1]+"&map.src="+x[2]+"&map.vartype="+x[3]+"&map.start="+x[4]+"&map.num="+x[5];
-    HTTP.post(url, data, procPostReply);
+    var url = "cgi-bin/test";
+    var data = "nodeid="+x[0]+"&mrcsrc="+x[1]+"&vartype="+x[2]+"&start="+x[3]+"&num="+x[4];
+    HTTP.post(url, data, procTestPostReply);
 }
 function sortMappings(){
     var arr = JSON.parse(localStorage.allMappings);
@@ -252,5 +255,20 @@ function loadData(){
 function handler(procText){
     document.getElementById('toDevice').innerHTML = procText;
 }
-
+function getData(min,max){
+    var arr = [];
+    for(var i=min;i<max;i++){
+        arr.push(i);
+    }
+    arr.forEach(function(element){
+        e = adjust(element);
+        HTTP.post("cgi-bin/get_map", "map"+e+".isvalid", function(reply){
+            doGetData(reply)
+        })
+    })
+}
+function adjust(num){
+    if(num.toString().length==1)   return '0'+num;
+    else                           return num;
+}
 

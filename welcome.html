@@ -32,9 +32,9 @@
         <a onclick="load(parent.document.getElementById('op2'),2)" class="welcome-menu">Network</a>
         <a onclick="load(parent.document.getElementById('op3'),3)" class="welcome-menu">Serial</a>
         <div style="width:100%;height:35px"></div>
-        <a onclick="load(parent.document.getElementById('op4'),4)" class="welcome-menu">Upload</a>
+        <a onclick="load(parent.document.getElementById('op4'),4)" class="welcome-menu">Mappings</a>
         <a onclick="load(parent.document.getElementById('op5'),5)" class="welcome-menu">Test</a>
-        <a onclick="load(parent.document.getElementById('op6'),6)" class="welcome-menu">Mappings</a>
+        <a onclick="load(parent.document.getElementById('op6'),6)" class="welcome-menu">Upload</a>
     </div>
 </body>
 <style>
@@ -43,6 +43,7 @@
         text-align: center;
         padding-top: 80px;
         height: 100%;
+        font-family: 'Montserrat', sans-serif;
     }
 
     a.welcome-menu {
@@ -80,13 +81,13 @@
         content: url(pics/serial-negative.png);
     }
     a:nth-child(7)::before{
-        content: url(pics/upload-negative.png);
+        content: url(pics/mapping-negative.png);
     }
     a:nth-child(8)::before{
         content: url(pics/test-negative.png);
     }
     a:nth-child(9)::before{
-        content: url(pics/mapping-negative.png);
+        content: url(pics/upload-negative.png);
     }
     a::after {
         transition: opacity .3s ease;

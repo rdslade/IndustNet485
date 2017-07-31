@@ -14,6 +14,7 @@
     <center style="font-size:54px"><strong>Network Config</strong></center>
     <hr>
     <form name="form1">
+<!--
         <td>
             <label style="font-size:24"><input type="radio" class="radchoice" id="r1" name="rad"/>Obtain IP Address from DHCP</label>
         </td>
@@ -28,6 +29,7 @@
                 <th><img class="invalid" id="hostpic" src="pics/trans.png"></th>
             </tr>
         </table>
+-->
 
         <td>
                 <label style="font-size:24"><input type="radio" class="radchoice" id="r1" name="rad"/>Use the following configuration</label>
@@ -176,7 +178,7 @@
         //setList = appendSetPair(setList, "ethlink", selectGet(f.ethlink));
         setPostStatus("Sending data ...");
         HTTP.post("cgi-bin/set_cfg", setList, procPostReply);
-
+        localStorage.rebootNeeded = true;
         return true;
     }
 

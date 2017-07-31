@@ -47,8 +47,6 @@
         <th class="datalabel" colspan="0" align="right" style="font-size:20px">Data Bits:</th>
         <th class="datavalue" colspan="0" align="left">
             <select name="charsize">
-                <option value="5">5</option>
-                <option value="6">6</option>
                 <option value="7">7</option>
                 <option value="8">8</option>
             </select>
@@ -60,8 +58,6 @@
                 <option value="none">None</option>
                 <option value="even">Even</option>
                 <option value="odd">Odd</option>
-                <option value="mark">Mark</option>
-                <option value="space">Space</option>
             </select>
         </th>
     </tr>
@@ -78,7 +74,7 @@
         <th class="datalabel" align="right" style="font-size:20px">RS-Mode:</th>
         <th class="datavalue" align="left">
             <select name="rsmode">
-                <option value="rs422">RS-482</option>
+                <option value="rs422">RS-422</option>
                 <option value="rs485">RS-485</option>
             </select>
         </th>
@@ -147,6 +143,7 @@ function setFormField(fnam, fval)
 
 function processForm()
 {
+    localStorage.rebootNeeded = true;
     var f = document.form1;
     var setList = "";
     setList = appendSetPair(setList, "baudrate", selectGet(f.baudrate));

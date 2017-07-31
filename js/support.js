@@ -10,17 +10,6 @@ function loadData()
 
   HTTP.post("cgi-bin/get_cfg", getList.join(','), procDataReply);
 }
-function loadMapData(){
-    var getList = [];
-    var i;
-    
-    setPostStatus("Loading form...");
-    
-    for (i = 0; i < fldVarPair.length; i++)
-        getList.push(fldVarPair[i][1]);
-
-    HTTP.post("cgi-bin/get_map", getList.join(','), procDataReply);
-}
 function procDataReply(replyText)
 {
   var f = document.form1;
@@ -30,7 +19,6 @@ function procDataReply(replyText)
   {
     var vpair = vlist[i].split("=");
     var fld = mapVarToFld(vpair[0]);
-
     if (fld)
       setFormField(fld, vpair[1]);
     else
@@ -38,6 +26,17 @@ function procDataReply(replyText)
   }
 
   hidePostStatus( );
+}
+function procMapDataReply(replyText){
+  var f = document.form1;
+  var vlist = replyText.split(",");
+  for (var i = 0; i < vlist.length; i++)
+  {
+    var vpair = vlist[i].split("=");
+    var all = vpair[0].split('.');
+    var fld = all[1]+all[0].slice(-2);
+    setFormField(fld,vpair[1]);
+  }
 }
 
 function mapFldToVar(fname)
@@ -125,9 +124,22 @@ function selectGet(sel)
 }
 
 function procPostReply(respText)
-{
-  if (setPostStatus(respText))
+{     
+  if (setPostStatus(respText)){
     window.setTimeout(hidePostStatus, 4000);
+    if(respText.slice(0,5)==="Error"){
+        return false;
+    }
+  }
+  else
+    alert("Not Connected");
+}
+
+function procTestPostReply(respText)
+{     
+  if (setPostStatus(respText)){
+      
+  }
   else
     alert("Not Connected");
 }
@@ -285,14 +297,12 @@ function decorate(e,num){
 
 function load(e,v){
     firstTime = false;
-    if(v<6){
         select(v);
         decorate(e,0);
-    }
     var child = parent.document.getElementById("child_p");
     switch(v){
         case(0): 
-            child.src = "welcome.html";
+            child.src = "status.html";
             child.scrolling = "yes";
             break;
         case(1):
@@ -305,16 +315,40 @@ function load(e,v){
             child.src = "cfg_port0.html";
             break;
         case(4):
-            child.src = "upload_bin.html";
+            child.src = "mappings-static.html";
             break;
         case(5):
             child.src = "mapping-test.html";
             break;
         case(6):
-            child.src = "mappings-static.html";
+            child.src = "upload_bin.html";
             break;
     }
 }
 function firstLoad(){
     localStorage.sel = 0;
+    if(!localStorage.rebootNeeded)
+        localStorage.rebootNeeded = false;
+    setInterval(function(){
+        setWords(localStorage.rebootNeeded)
+    },1000)
+    var fldVarPair = [
+      ["swver", "swver"],
+      ["macaddr", "macaddr"]
+    ];
+  var getList = [];
+  var i;
+
+
+  for (i = 0; i < fldVarPair.length; i++)
+    getList.push(fldVarPair[i][1]);
+
+  HTTP.post("cgi-bin/get_cfg", getList.join(','), placeData);
+}
+function placeData(reply){
+    var vals = reply.split(',');
+    document.getElementById('swver').innerHTML = "Software Version: "+vals[0].split('=')[1];
+    var mac = vals[1].split('=')[1];
+    mac = mac.replace(/%3A/g,'-');
+    document.getElementById('macaddr').innerHTML = "MAC Address: "+mac;
 }

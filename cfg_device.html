@@ -88,7 +88,7 @@ function processForm()
 
   setPostStatus("Sending data ...");
   HTTP.post("cgi-bin/set_cfg", setList, procPostReply);
-
+  localStorage.rebootNeeded = true;
   return true;
 }
 

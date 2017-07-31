@@ -8,69 +8,290 @@
         <script language="JavaScript" src="js/support.js"></script>
         <script language="JavaScript" src="js/http.js"></script>
     </head>
-    <body onload="getData()">
-        <form name="form1">
+    <body onload="initPage();getData(0,100)">
+        <form name="form1" class = "mapform">
         <table align='center' id="mapping-table">
             <tr id="mappingHeader">
+                <th class="mappingh">Mapping ID</th>
                 <th class="mappingh">Node ID (00-99)</th>
-                <th class="mappingh">MRC (00-FF)</th>
-                <th class="mappingh">SRC (00-FF)</th>
-                <th class="mappingh">Variable Type (00-FF)</th>
+                <th class="mappingh">MRC/SRC (0000-FFFF)</th>
+                <th class="mappingh">Var Type (00-FF)</th>
                 <th class="mappingh">Start Address (0000-FFFF)</th>
                 <th class="mappingh"># of Elements (0000-FFFF)</th>
                 <th class="mappingh">Submit Mapping</th>
+                <th class="mappingh">Edit Mapping</th>
+                <th class="mappingh">Delete Mapping</th>
                 <!--<th id="select-all" onclick="selectAll()" class="mappingh">Select All</th>-->
-            </tr>
-            <tr>
-                <th><input name="nodeid" class="input1"type="text"/></th>
-                <th>
-                    <select name="mrc" class="input1">
-                        <option>01</option>
-                    </select>
-                </th>
-                <th>
-                    <select name="src" class="input1">
-                        <option>01</option>
-                        <option>02</option>
-                    </select>
-                </th>
-                <th><input name="vartype" class="input1" type="text"/></th>
-                <th><input name="start" class="input1" type="text"/></th>
-                <th><input name="num" class="input1" type="text"/></th>
-                <th><input onclick="processForm(this.id)"type="button" value="Submit" id="00"/></th>
             </tr>
         </table>
         </form>
-        <center><p id="post_status"></p></center>
         <div id="clear"></div>
     </body>
     <script>
         var fldVarPair = [
               ["nodeid", "map00.nodeid"],
-              ["mrc",     "map00.mrc"],
-              ["src",     "map00.src"],
+              ["mrcsrc",     "map00.mrcsrc"],
               ["vartype",   "map00.vartype"],
               ["start",   "map00.start"],
               ["num", "map00.num"],
         ];
+        var option = []
         function processForm(id)
         {
-          debugger;
-          var header = "map"+id+".";
-          var list = ['nodeid','mrc','src','vartype','start','num']
-          var inputs = document.getElementsByClassName('input1');
+          var num = id.slice(-2);
+          var type = id.substring(0,id.length-2)
+          var header = "map"+num+".";
+          var list = ['nodeid','mrcsrc','vartype','start','num']
           var data = "";
-          for(var i=0;i<inputs.length;i++){
-              data+=header+list[i]+"="+inputs[i].value+"&"
-          }
-          setPostStatus("Sending data ...");
-          HTTP.post("cgi-bin/set_map", data, procPostReply);
+          if(type==="submit"){
+              var inputs = document.getElementsByClassName('input'+num);
+              for(var i=0;i<inputs.length;i++){
+                  if(!validateField(i+2,inputs[i])){
+                      alert("Fields entered incorrectly")
+                      return false;
+                  }
+                  data+=header+list[i]+"="+inputs[i].value.toUpperCase();
+                  if(i!=inputs.length-1)
+                      data+="&";
+              }
+              addRowText(num);
+              HTTP.post("cgi-bin/set_map", data, function(reply){
+                  if(reply && reply.slice(0,5).toLowerCase()==="error"){
+                      setPostStatus(reply);
+                      changeRowState(num,1);
+                      return false;
+                  }
+                  else{
+                      procPostReply(reply);
+                  }
+              });
+              
+              setTimeout(function(){
+                  var el = document.getElementById('post_status');
+                  el.parentNode.removeChild(el)
+              },2000);
+              changeRowState(num,0);
+              localStorage.rebootNeeded = true;
 
-          return true;
+          }
+          else if(type=="edit"){
+              changeRowState(num,1);
+              return true;
+          }
+          else if(type=="cancel"){
+              changeRowState(num,2);
+              return true;
+          }
+          else if(type=="del"){
+              data+="map="+num;
+              addRowText(num);
+              HTTP.post("cgi-bin/del_map", data, procPostReply);
+              setTimeout(function(){
+                  var el = document.getElementById('post_status');
+                  el.parentNode.removeChild(el)
+              },2000);
+              changeRowState(num,3);
+          }
         }
-        function getData(){
-            debugger;
+        function addRowText(num){
+            var newRow = document.createElement('tr');
+            var newTd = document.createElement('td');
+            var bold = document.createElement('b');
+            var text = document.createTextNode("---");
+            newTd.colSpan = "100";
+            bold.appendChild(text);
+            newTd.appendChild(bold);
+            newRow.appendChild(newTd);
+              newRow.setAttribute('id','post_status');
+              var tab = document.getElementById('mapping-table').childNodes[1];
+              var index = parseInt(num)+3;
+              tab.insertBefore(newRow,tab.childNodes[index]);
+              setPostStatus("Sending data...");
+        }
+        function doGetData(reply){
+            i = reply.slice(3,5);
+            fldVarPair = [
+                ["nodeid"+i,"map"+i+".nodeid"],
+                ["mrcsrc"+i,"map"+i+".mrcsrc"],
+                ["vartype"+i,"map"+i+".vartype"],
+                ["start"+i,"map"+i+".start"],
+                ["num"+i,"map"+i+".num"],
+            ]
             loadMapData();
+            if(reply.slice(-1)==="1"){
+                changeRowState(i,0);
+            }
+            else{
+                changeRowState(i,-1);
+            }
+
+        }
+        function setFormField(fnam, fval)
+        {
+          var f = document.form1;
+            var ele = document.getElementsByName(fnam)[0];
+            if(ele){
+                ele.value = decodeStr(fval);
+            }
+            else{
+                alert("No field for "+ fnam);
+            }
+        }
+        function initPage(){
+            for(var i=0;i<100;i++){
+                i = adjust(i);
+                var row = document.getElementById('mapping-table').insertRow(-1);
+                row.setAttribute('id',i)
+                
+                
+                var cell0 = row.insertCell(0);
+                var cell1 = row.insertCell(1);
+                var cell2 = row.insertCell(2);
+                var cell3 = row.insertCell(3);
+                var cell4 = row.insertCell(4);
+                var cell5 = row.insertCell(5);
+                var cell6 = row.insertCell(6);
+                var cell7 = row.insertCell(7);
+                var cell8 = row.insertCell(8);
+                
+                var txt = document.createElement('p');
+                var n = document.createTextNode(i);
+                txt.appendChild(n)
+                txt.setAttribute('id','num'+i)
+                cell0.appendChild(txt)
+
+                var nodeid = document.createElement('input');
+                nodeid.setAttribute('type','text');
+                nodeid.setAttribute('name','nodeid'+i);
+                nodeid.setAttribute('class','input'+i);
+                nodeid.setAttribute('onblur','validateField(2,this)')
+                cell1.appendChild(nodeid);
+                
+                var mrcsrc = document.createElement('select');
+                var option1 = document.createElement('option');
+                option1.value = '0101'
+                option1.text = '0101';
+                var option2 = document.createElement('option');
+                option2.value='0102';
+                option2.text = '0102';
+                mrcsrc.appendChild(option1);
+                mrcsrc.appendChild(option2);
+                mrcsrc.setAttribute('name','mrcsrc'+i)
+                mrcsrc.setAttribute('class','input'+i);
+                cell2.appendChild(mrcsrc);
+                
+                var vartype = document.createElement('input');
+                vartype.setAttribute('type','text');
+                vartype.setAttribute('name','vartype'+i);
+                vartype.setAttribute('class','input'+i);
+                vartype.setAttribute('onblur','validateField(4,this)')
+                cell3.appendChild(vartype);
+                
+                var start = document.createElement('input');
+                start.setAttribute('type','text');
+                start.setAttribute('name','start'+i);
+                start.setAttribute('class','input'+i);
+                start.setAttribute('onblur','validateField(5,this)')
+                cell4.appendChild(start);
+                
+                var num = document.createElement('input');
+                num.setAttribute('type','text');
+                num.setAttribute('name','num'+i);
+                num.setAttribute('class','input'+i);
+                num.setAttribute('onblur','validateField(6,this)')
+                cell5.appendChild(num);
+                
+                
+                var submit = document.createElement('input');
+                submit.setAttribute('type','button');
+                submit.setAttribute('value','Submit');
+                submit.setAttribute('id','submit'+i);
+                submit.setAttribute('onclick','processForm(this.id)')
+                cell6.appendChild(submit);
+                
+                var edit = document.createElement('input');
+                edit.setAttribute('type','button');
+                edit.setAttribute('value','Edit');
+                edit.setAttribute('id','edit'+i);
+                edit.setAttribute('onclick','processForm(this.id)')
+                cell7.appendChild(edit);
+                
+                var del = document.createElement('input');
+                del.setAttribute('type','button');
+                del.setAttribute('value','Delete');
+                del.setAttribute('id','del'+i);
+                del.setAttribute('onclick','processForm(this.id)')
+                cell8.appendChild(del);
+            }
+        }
+        function changeRowState(r,num){
+            debugger;
+            var row = document.getElementById(r.toString());
+            var flds = row.childNodes;
+            for(var i=1;i<6;i++){
+                var fieldToChange = flds[i].childNodes[0];
+                if(num==0){
+                    fieldToChange.style.color = 'green';
+                    if(fieldToChange.nodeName==='input')
+                        fieldToChange.readOnly = true;
+                    else
+                        fieldToChange.disabled = true;
+                    fieldToChange.style.backgroundColor = "lightgray"
+                }
+                else if(num==1){
+                    fieldToChange.style.color = 'black';
+                    if(fieldToChange.nodeName==='input')
+                        fieldToChange.readOnly = false;
+                    else
+                        fieldToChange.disabled = false;
+                    fieldToChange.style.backgroundColor = "white"
+                }
+                else if(num==-1){
+                    fieldToChange.style.color = 'black';
+                    if(fieldToChange.nodeName==='input')
+                        fieldToChange.readOnly = true;
+                    else
+                        fieldToChange.disabled = true;
+                    fieldToChange.style.backgroundColor = "lightgray"
+                }
+            }
+            if(num==0 || num==-1){
+                document.getElementById('submit'+r).disabled = true;
+                if(document.getElementById('cancel'+r)){
+                    document.getElementById('cancel'+r).id="edit"+r;
+                    document.getElementById('edit'+r).value = "Edit";
+                }
+                document.getElementById('edit'+r).disabled = false;
+            }
+            else if(num==1){
+                document.getElementById('submit'+r).disabled = false;
+                document.getElementById('edit'+r).value = "Cancel";
+                document.getElementById('edit'+r).id = 'cancel'+r;  
+            }
+            else if(num==2){
+                document.getElementById('cancel'+r).value = 'Edit';
+                document.getElementById('cancel'+r).id = 'edit'+r;
+                getData(parseInt(r),parseInt(r)+1);
+                changeRowState(r,0);
+            }
+            else if(num==3){
+                getData(parseInt(r),parseInt(r)+1);
+                changeRowState(r,0);
+            }
+            if(num==-1){
+                document.getElementById('del'+r).disabled = true;
+            }
+        }
+        function loadMapData(){
+            var getList = [];
+            var i;
+
+            //setPostStatus("Loading form...");
+
+            for (i = 0; i < fldVarPair.length; i++)
+                getList.push(fldVarPair[i][1]);
+
+            HTTP.post("cgi-bin/get_map", getList.join(','), procMapDataReply);
         }
     </script>
 </html>
