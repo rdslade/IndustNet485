@@ -6,6 +6,13 @@
         <script language="JavaScript" src="js/map.js"></script>
         <script language="JavaScript" src="js/http.js"></script>
         <script language="JavaScript" src="js/support.js"></script>
+        <script>
+            function sendTestRequest(x){ //compiles test fields and sends post request to testing endpoint
+                var url = "cgi-bin/test";
+                var data = "nodeid="+x[0]+"&mrcsrc="+x[1]+"&vartype="+x[2]+"&start="+x[3]+"&num="+x[4];
+                HTTP.post(url, data, procTestPostReply);
+            }
+        </script>
     </head>
     <body>
         <table align='center' id="mapping-table">
@@ -28,7 +35,7 @@
                 <th class="mappingh"><input class="input1" onblur="validateField(4,this)" type=text/></th>
                 <th class="mappingh"><input class="input1"onblur="validateField(5,this)" type=text/></th>
                 <th class="mappingh"><input class="input1" onblur="validateField(6,this)" type=text/></th>
-                <th class="mappingh"><button onclick="var x = finalValidate(1);sendRequest(x)">Validate</button></th>
+                <th class="mappingh"><button onclick="var x = finalValidate(1);sendTestRequest(x)">Validate</button></th>
             </tr>
         </table>
         <center>

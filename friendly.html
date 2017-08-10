@@ -1,0 +1,193 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD html 4.0 transitional//EN">
+<html>
+    <head>
+        <title>Groupings Configuration</title>
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.0/jquery.min.js"></script>
+        <script type="text/javascript" src="data.json"></script>
+        <link rel="stylesheet" type="text/css" href="css/style.css"/>
+        <link href="https://fonts.googleapis.com/css?family=Montserrat" rel="stylesheet">
+        <script type="text/javascript">
+            function load() {
+                 for(var i=0;i<devices.length;i++)
+                     createOption('devSel',devices[i].devname,devices[i].id)
+             }
+            $(document).ready(function(){
+                $('#devSel').on('change',function(){
+                    for(var i=0;i<devices.length;i++){
+                        if(devices[i].id===$(this).val()){
+                            var arr = devices[i].datasets;
+                            break;
+                        }
+                    }
+                    $("#dataSel")
+                        .find('option')
+                        .remove()
+                        .end()
+                    loadData(arr,datasets)
+                });
+                $.getJSON('data.json', function(response){
+                    JSON = response;
+                    devices = JSON["devs"];
+                    datasets = JSON["dsets"];
+                    mappings = JSON["maps"];
+                    load();
+                })
+                $('select').on( 'mousewheel DOMMouseScroll', function (e) { 
+  
+                  var e0 = e.originalEvent;
+                  var delta = e0.wheelDelta || -e0.detail;
+
+                  this.scrollTop += ( delta < 0 ? 1 : -1 ) * 30;
+                  e.preventDefault();  
+                });
+            })
+            function loadData(arr,list){
+                for(var i=0;i<arr.length;i++){
+                    var dtd = binSearchData(parseInt(arr[i]),0,list.length-1,list)
+                    if(list==datasets)
+                        createOption('dataSel',dtd.dataname,dtd.id)
+                    else if(list==mappings){
+                        var row = document.getElementById('previewTab').insertRow(-1);
+                        row.setAttribute('class','mapRow');
+                        var keys = Object.keys(dtd);
+                        for(var j=1;j<keys.length;j++){
+                            var td = document.createElement('td')
+                            var txt = document.createTextNode(dtd[keys[j]]);
+                            td.appendChild(txt);
+                            row.appendChild(td);
+                        }
+                    }
+                }
+            }
+            function binSearchData(val,min,max,list){
+                var mid = Math.floor((min+max)/2);
+                var guess = list[mid].id
+                if(guess==val)
+                    return list[mid];
+                else if(guess<val)
+                    return binSearchData(val,mid+1,max,list)
+                else
+                    return binSearchData(val,min,mid-1,list)
+            }
+            function createOption(select,optName,optValue){
+                var opt = document.createElement('option');
+                opt.text = optName;
+                opt.value = optValue;
+                document.getElementById(select).add(opt)
+            }
+            function previewText(){
+                $('.mapRow').remove();
+                var dev = document.getElementById('devSel').value;
+                var dat = document.getElementById('dataSel').value;
+                //document.getElementById('previewText').innerHTML = "Preview of Device "+dev+" with Dataset "+dat;
+                document.getElementById('dev-text').value = dev;
+                document.getElementById('data-text').value=dat;
+                
+                for(var i=0;i<datasets.length;i++){
+                    if(datasets[i].id===dat){
+                        var arr = datasets[i].mappings;
+                        break;
+                    }
+                }
+                loadData(arr,mappings)
+            }
+            var index = 0
+            function addGroup(){
+                var dev = document.getElementById('devSel').value;
+                var dat = document.getElementById('dataSel').value;
+                if(!dev || !dat){
+                    alert("Please choose a device and a dataset");
+                    return;
+                }
+                var div = document.createElement('div');
+                div.setAttribute('class','grouping');
+                
+                var img = document.createElement('img')
+                img.setAttribute('class','grouping-delete');
+                img.setAttribute('src','pics/trash.png')
+                
+                var head = document.createElement('h2')
+                head.setAttribute('style','color:white')
+                head.innerHTML = 'Group '+index;
+                
+                var name = document.createElement('p');
+                name.setAttribute('style','text-indent:50px')
+                name.innerHTML = "Device: "+ document.getElementById('dev-text').value
+                
+                var data = document.createElement('p');
+                data.setAttribute('style','text-indent:50px')
+                data.innerHTML = "Dataset: "+ document.getElementById('data-text').value
+                
+                var maps = document.createElement('p'); maps.setAttribute('style','text-indent:50px')
+                maps.innerHTML = document.getElementsByClassName('mapRow').length+" Mappings"
+                
+                div.appendChild(img);
+                div.appendChild(head);
+                div.appendChild(name);
+                div.appendChild(data);
+                div.appendChild(maps);
+                $('.mapRow').remove();
+                document.getElementById('result-container').appendChild(div);
+                index++;
+                
+                document.getElementById('previewText').innerHTML = "Select device and dataset to preview";
+                document.getElementById('dev-text').value = '';
+                document.getElementById('data-text').value = '';
+                $("select").val([])
+            }
+        </script>
+    </head>
+    <body>
+        <div id="config-container">
+            <div class="select" id="left">
+                <p class="select-label">DEVICE</p>
+                <select size="3" class="groupSel" id="devSel">
+                    <optgroup label="Select one device"></optgroup>
+                </select>
+            </div>
+            <div class="select" id="right">
+                <select size="3" class="groupSel" id="dataSel" onChange="previewText()">
+                    <optgroup label="Select one dataset"></optgroup>
+                </select>
+                <p class="select-label">DATASET</p>
+            </div>
+        </div>
+        <center><p>Select a device and dataset to see a preview</p></center>
+        <center><p>Press 'Add Group' to submit your mapping group</p></center>
+        <hr>
+        
+        <div id="result-container">
+            <h2>Current Groups</h2>
+        </div>
+        
+        <div id="preview-container">
+            <h3 id="previewText">Preview</h3>
+            <input id="addGroup" class="save" style="visibility:visible;width:250px;display:inline" type="button" onclick="addGroup()" value="Add Group"/>
+            <table width="100%" id="previewTab">
+                <tr>
+                    <th width="25%" align="right">Device:</th>
+                    <th colspan="5">
+                        <input type="text" id="dev-text" readonly="readonly" colspan="20"/>
+                    </th>
+                </tr>
+                <tr>
+                    <th width="25%" align="right">Dataset:</th>
+                    <th colspan="5">
+                        <input type="text" id="data-text" readonly="readonly" colspan="20"/>
+                    </th>
+                </tr>
+                <tr>
+                    <th>Mappings:</th>
+                    <th>
+                </tr>
+                <tr>
+                    <th >Node ID</th>
+                    <th>MRC/SRC</th>
+                    <th>Var Type</th>
+                    <th>Start Addr</th>
+                    <th>Num Elements</th>
+                </tr>
+            </table>
+        </div>
+    </body>
+</html>

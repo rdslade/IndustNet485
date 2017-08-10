@@ -323,6 +323,12 @@ function load(e,v){
         case(6):
             child.src = "upload_bin.html";
             break;
+        case(7):
+            child.src = "friendly.html";
+            break;
+        case(8):
+            child.src = "pass.html";
+            break;
     }
 }
 function firstLoad(){

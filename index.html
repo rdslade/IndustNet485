@@ -90,7 +90,7 @@
     <body onload="firstLoad();load(this,0);">
         <div id="top-container">
             <div id="logo-container">
-                <img id="logo" src="pics/gclogo.gif">
+                <a href="https://gridconnect.com/" target="child_p"><img id="logo" src="pics/gclogo.gif"></a>
             </div>
             <p style="color:white" id="swver">Software Version:</p>
             <p style="color:white">Webpage Version: v0.0.1</p>
@@ -123,24 +123,33 @@
                     <div class="menu-link">Mappings</div>
                     <img class="icon" src="pics/mapping.png"/>
                 </div>
+                <div id="op7" class="optno" onmouseover="decorate(this,1)" onmouseout="decorate(this,2)" onclick="load(this,7);changeTitle('Groupings');">
+                    <div class="menu-link">Groupings</div>
+                    <img class="icon" src="pics/groupings.png"/>
+                </div>
                 <div id="op5" class="optno" onmouseover="decorate(this,1)" onmouseout="decorate(this,2)" onclick="load(this,5);changeTitle('Test Mapping');">
                     <div class="menu-link">Test</div>
                     <img class="icon" style="position:relative;top:6px" src="pics/test.png"/>
                 </div>
+                <div class="optno"><div class="menu-text">Admin</div></div>
                 <div id="op6" class="optno" onmouseover="decorate(this,1)" onmouseout="decorate(this,2)" onclick="load(this,6);changeTitle('Upload');">
-                    <div id="home" class="menu-text">Admin</div>
+                    <div id="home" class="menu-link">Upload</div>
                     <img class="icon" style="position:relative;top:6px" src="pics/upload.png"/>
+                </div>
+                <div id="op8" class="optno" onmouseover="decorate(this,1)" onmouseout="decorate(this,2)" onclick="load(this,8);changeTitle('Upload');">
+                    <div id="home" class="menu-link">Security</div>
+                    <img class="icon" style="position:relative;top:6px" src="pics/lock.png"/>
                 </div>
                 <hr>
                 <div id="reboot">
-                    <form name="form1" style="width:100%;text-align:center; padding-top: 10px;height:20px; margin: 0 auto;">
+                    <form name="form1" style="width:100%;text-align:center; padding-top: 5px;height:20px; margin: 0 auto;">
                         <p id="needed" style="position:relative;visibility:hidden;right:15%;"><b>--</b></p>
                         <input id="rebootbutton" class="save" style="visibility:visible;right:15%;position:relative;" type="button" name="reboot" value="  Reboot  " onClick="return doReboot()" />
                         <p id="post_status" style="position:relative;visibility: hidden;right:15%;"><b>--</b></p>
                     </form>
                 </div>
             </div>
-            <iframe id="child_p" scrolling="yes" frameborder="0" src=""></iframe>
+            <iframe name="child_p" id="child_p" scrolling="yes" frameborder="0" src=""></iframe>
             
             <div id="bottom" class="space"></div>
         </div>

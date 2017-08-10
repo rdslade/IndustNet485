@@ -21,7 +21,6 @@
                 <th class="mappingh">Submit Mapping</th>
                 <th class="mappingh">Edit Mapping</th>
                 <th class="mappingh">Delete Mapping</th>
-                <!--<th id="select-all" onclick="selectAll()" class="mappingh">Select All</th>-->
             </tr>
         </table>
         </form>
@@ -36,64 +35,64 @@
               ["num", "map00.num"],
         ];
         var option = []
-        function processForm(id)
+        function processForm(id) //called when a map button is pressed; id=id of the clicked button
         {
-          var num = id.slice(-2);
-          var type = id.substring(0,id.length-2)
+          var num = id.slice(-2); //get map id of the submit
+          var type = id.substring(0,id.length-2) //type of click (submit,edit,cancel...)
           var header = "map"+num+".";
           var list = ['nodeid','mrcsrc','vartype','start','num']
           var data = "";
           if(type==="submit"){
               var inputs = document.getElementsByClassName('input'+num);
               for(var i=0;i<inputs.length;i++){
-                  if(!validateField(i+2,inputs[i])){
+                  if(!validateField(i+2,inputs[i])){ //if fields have not been entered incorrectly
                       alert("Fields entered incorrectly")
                       return false;
                   }
-                  data+=header+list[i]+"="+inputs[i].value.toUpperCase();
+                  data+=header+list[i]+"="+inputs[i].value.toUpperCase(); //compile data string corresponding to individual map
                   if(i!=inputs.length-1)
                       data+="&";
               }
-              addRowText(num);
+              addRowText(num); //add post status text beneath current row
               HTTP.post("cgi-bin/set_map", data, function(reply){
-                  if(reply && reply.slice(0,5).toLowerCase()==="error"){
+                  if(reply && reply.slice(0,5).toLowerCase()==="error"){ //if the post has an error
                       setPostStatus(reply);
                       changeRowState(num,1);
                       return false;
                   }
                   else{
-                      procPostReply(reply);
+                      procPostReply(reply); //if post is successful continue processing the reply and setting map
                   }
               });
               
               setTimeout(function(){
                   var el = document.getElementById('post_status');
                   el.parentNode.removeChild(el)
-              },2000);
-              changeRowState(num,0);
+              },2000); //remove text after 2 seconds
+              changeRowState(num,0); //change row style to signify successful submission
               localStorage.rebootNeeded = true;
 
           }
           else if(type=="edit"){
-              changeRowState(num,1);
+              changeRowState(num,1); //change to edit style
               return true;
           }
           else if(type=="cancel"){
-              changeRowState(num,2);
+              changeRowState(num,2); //change to cancel style
               return true;
           }
           else if(type=="del"){
               data+="map="+num;
               addRowText(num);
-              HTTP.post("cgi-bin/del_map", data, procPostReply);
+              HTTP.post("cgi-bin/del_map", data, procPostReply); //delete map
               setTimeout(function(){
                   var el = document.getElementById('post_status');
                   el.parentNode.removeChild(el)
-              },2000);
-              changeRowState(num,3);
+              },2000); //remove status after 2 seconds
+              changeRowState(num,3); //change row to signify delete
           }
         }
-        function addRowText(num){
+        function addRowText(num){  //creates a post status reply under the row that is being submitted
             var newRow = document.createElement('tr');
             var newTd = document.createElement('td');
             var bold = document.createElement('b');
@@ -118,15 +117,15 @@
                 ["num"+i,"map"+i+".num"],
             ]
             loadMapData();
-            if(reply.slice(-1)==="1"){
-                changeRowState(i,0);
+            if(reply.slice(-1)==="1"){ //if the mapping is valid
+                changeRowState(i,0); //change row to successful submission
             }
             else{
-                changeRowState(i,-1);
+                changeRowState(i,-1); //change row to unsuccessful submission
             }
 
         }
-        function setFormField(fnam, fval)
+        function setFormField(fnam, fval)//sets the field to the value provided
         {
           var f = document.form1;
             var ele = document.getElementsByName(fnam)[0];
@@ -137,12 +136,12 @@
                 alert("No field for "+ fnam);
             }
         }
-        function initPage(){
-            for(var i=0;i<100;i++){
+        function initPage(){ //called to initiate the 100 static rows of the mapping table
+            for(var i=0;i<100;i++){ //100 rows
                 i = adjust(i);
-                var row = document.getElementById('mapping-table').insertRow(-1);
+                var row = document.getElementById('mapping-table').insertRow(-1); //insert a row at bottom
                 row.setAttribute('id',i)
-                
+                row.setAttribute('class','rows')
                 
                 var cell0 = row.insertCell(0);
                 var cell1 = row.insertCell(1);
@@ -158,14 +157,14 @@
                 var n = document.createTextNode(i);
                 txt.appendChild(n)
                 txt.setAttribute('id','num'+i)
-                cell0.appendChild(txt)
+                cell0.appendChild(txt); //txt node for first column corresponding to map id
 
                 var nodeid = document.createElement('input');
                 nodeid.setAttribute('type','text');
                 nodeid.setAttribute('name','nodeid'+i);
                 nodeid.setAttribute('class','input'+i);
                 nodeid.setAttribute('onblur','validateField(2,this)')
-                cell1.appendChild(nodeid);
+                cell1.appendChild(nodeid); //text input used for nodeid
                 
                 var mrcsrc = document.createElement('select');
                 var option1 = document.createElement('option');
@@ -178,28 +177,28 @@
                 mrcsrc.appendChild(option2);
                 mrcsrc.setAttribute('name','mrcsrc'+i)
                 mrcsrc.setAttribute('class','input'+i);
-                cell2.appendChild(mrcsrc);
+                cell2.appendChild(mrcsrc); //select input used for mrcsrc
                 
                 var vartype = document.createElement('input');
                 vartype.setAttribute('type','text');
                 vartype.setAttribute('name','vartype'+i);
                 vartype.setAttribute('class','input'+i);
                 vartype.setAttribute('onblur','validateField(4,this)')
-                cell3.appendChild(vartype);
+                cell3.appendChild(vartype); //text input used for vartype
                 
                 var start = document.createElement('input');
                 start.setAttribute('type','text');
                 start.setAttribute('name','start'+i);
                 start.setAttribute('class','input'+i);
                 start.setAttribute('onblur','validateField(5,this)')
-                cell4.appendChild(start);
+                cell4.appendChild(start); //text input used for start address
                 
                 var num = document.createElement('input');
                 num.setAttribute('type','text');
                 num.setAttribute('name','num'+i);
                 num.setAttribute('class','input'+i);
                 num.setAttribute('onblur','validateField(6,this)')
-                cell5.appendChild(num);
+                cell5.appendChild(num); //text input used for number of elements
                 
                 
                 var submit = document.createElement('input');
@@ -207,26 +206,25 @@
                 submit.setAttribute('value','Submit');
                 submit.setAttribute('id','submit'+i);
                 submit.setAttribute('onclick','processForm(this.id)')
-                cell6.appendChild(submit);
+                cell6.appendChild(submit); //submit button
                 
                 var edit = document.createElement('input');
                 edit.setAttribute('type','button');
                 edit.setAttribute('value','Edit');
                 edit.setAttribute('id','edit'+i);
                 edit.setAttribute('onclick','processForm(this.id)')
-                cell7.appendChild(edit);
+                cell7.appendChild(edit); //edit button
                 
                 var del = document.createElement('input');
                 del.setAttribute('type','button');
                 del.setAttribute('value','Delete');
                 del.setAttribute('id','del'+i);
                 del.setAttribute('onclick','processForm(this.id)')
-                cell8.appendChild(del);
+                cell8.appendChild(del); //delete button
             }
         }
-        function changeRowState(r,num){
-            debugger;
-            var row = document.getElementById(r.toString());
+        function changeRowState(r,num){ //changes the style of the row depending on if it has been submitted, edited, ect.
+            var row = document.getElementById(r.toString());  
             var flds = row.childNodes;
             for(var i=1;i<6;i++){
                 var fieldToChange = flds[i].childNodes[0];
@@ -285,9 +283,6 @@
         function loadMapData(){
             var getList = [];
             var i;
-
-            //setPostStatus("Loading form...");
-
             for (i = 0; i < fldVarPair.length; i++)
                 getList.push(fldVarPair[i][1]);
 

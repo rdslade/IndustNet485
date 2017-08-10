@@ -6,6 +6,7 @@
 <script language="JavaScript" src="js/support.js"></script>
 <script language="JavaScript" src="js/map.js"></script>
 <script language="JavaScript" src="js/http.js"></script>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.0/jquery.min.js"></script>
 <link rel="stylesheet" type="text/css" href="css/style.css" />
 <link href="https://fonts.googleapis.com/css?family=Montserrat" rel="stylesheet">
 </head>
@@ -14,7 +15,7 @@
     
     <div style="width:100%;height:20px"></div>
 
-    <center style="font-size:54px;line-height:.5"><strong>Status</strong></center>
+    <center style="font-size:54px;line-height:.5"><strong onclick="addMapToTable('map00.nodeid=03,map00.mrcsrc=0101,map00.vartype=C3,map00.start=0000,map00.num=0003,map00.bytes=12')">Status</strong></center>
     <div style="width:100%;height:20px"></div>
     <hr>
     <div style="width:100%;height:25%;position:relative;overflow:scroll;text-align:center;overflow:hidden">
@@ -58,7 +59,7 @@
         </div>
         <div class="assembly">
             <p class="statusHead"><strong>Output Assembly Size - ***#*** bytes</strong></p>
-            <div>
+            <div id="main">
                 <table class="asmTab" id="output">
                     <tr>
                         <th class="asmTh">Map Number</th>
@@ -71,6 +72,9 @@
     </div>
 </body>
     <script>
+        document.getElementsByTagName('tr').onmouseover = function(){
+            this.childNodes[0].innerHTML = "HELLO";
+        }
         function load()
         {
           var fldVarPair = [
@@ -130,7 +134,11 @@
         }
         function addMapToTable(reply){
             var arr = reply.split(',');
+            var nodeid = arr[0].slice(-2);
+            var type = arr[2].slice(-2);
             var mrcsrc = arr[1].slice(-4);
+            var startAddr = arr[3].slice(-4);
+            var numE = arr[4].slice(-4);
             var bytes = arr[5].split('=')[1];
             var num = arr[0].slice(3,5);
             var tab;
@@ -140,9 +148,12 @@
             else{
                 tab=document.getElementById('output')
             }
-            
             var row = tab.insertRow(-1);
             row.setAttribute('class','asmTr');
+            row.onclick = function(){
+                var url = "mappings-static.html#mappingHeader";
+                location.href=url;
+            };
             
             var cell1 = row.insertCell(0);
             var cell2 = row.insertCell(1);
@@ -154,10 +165,22 @@
             var div1 = document.createElement('div');
             var div2 = document.createElement('div');
             var div3 = document.createElement('div');
+            var hoverdiv = document.createElement('div');
+            var wrap = document.createElement('div');
+            var preview = document.createElement('p');
+            
             div1.setAttribute('class','asmDiv');
             div2.setAttribute('class','asmDiv');
             div3.setAttribute('class','asmDiv');
-            
+            hoverdiv.setAttribute('class','show-hover')
+            wrap.setAttribute('class','wrap');
+            preview.setAttribute('style','color:white');
+            var p = preview.appendChild(document.createElement('p'));
+            p.setAttribute('style','font-size:13px');
+            p.appendChild(document.createTextNode("Map#:"+num+",NodeID:"+nodeid+",MRC/SRC:"+mrcsrc+",VarType:"+type+",StartAddr:"+startAddr+",NumElements:"+numE));
+            wrap.appendChild(preview);
+            hoverdiv.appendChild(wrap)
+    
             var a = document.createTextNode("Map "+num);
             var b = document.createTextNode(bytes+" bytes")
             var i = document.createElement('img');
@@ -168,8 +191,25 @@
             div3.appendChild(i)
             
             cell1.appendChild(div1);
+            cell1.appendChild(hoverdiv);
             cell2.appendChild(div2);
             cell3.appendChild(div3);
         }
+        $(document).ready(function(){
+            
+            $.fn.ready(function() {
+//                $('.asmTr').hover(function() {
+//                    $(document).find('.popup').show();
+//                    var tr = $("<tr>",{"id":"pop"});
+//                    var td = $("<td>",{"class":"asmTd","colspan":"3"});
+//                    td.append("<p>Preview MappingT</p>");
+//                    tr.append(td)
+//                    $(this).after(tr);
+//                }, function() {
+//                    $(document).find('#pop').remove();
+//                });
+            });
+            
+        });
     </script>
 </html>
