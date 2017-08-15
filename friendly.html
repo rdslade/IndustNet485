@@ -4,6 +4,9 @@
         <title>Groupings Configuration</title>
         <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.0/jquery.min.js"></script>
         <script type="text/javascript" src="data.json"></script>
+        <script language="JavaScript" src="js/map.js"></script>
+        <script language="JavaScript" src="js/support.js"></script>
+        <script language="JavaScript" src="js/http.js"></script>
         <link rel="stylesheet" type="text/css" href="css/style.css"/>
         <link href="https://fonts.googleapis.com/css?family=Montserrat" rel="stylesheet">
         <script type="text/javascript">
@@ -32,7 +35,7 @@
                     mappings = JSON["maps"];
                     load();
                 })
-                $('select').on( 'mousewheel DOMMouseScroll', function (e) { 
+                $('select,#preview-container').on( 'mousewheel DOMMouseScroll', function (e) { 
   
                   var e0 = e.originalEvent;
                   var delta = e0.wheelDelta || -e0.detail;
@@ -55,6 +58,7 @@
                             var txt = document.createTextNode(dtd[keys[j]]);
                             td.appendChild(txt);
                             row.appendChild(td);
+                            document.getElementById('previewText').innerHTML="Preview- ("+arr.length+" Mappings)";
                         }
                     }
                 }
@@ -79,9 +83,6 @@
                 $('.mapRow').remove();
                 var dev = document.getElementById('devSel').value;
                 var dat = document.getElementById('dataSel').value;
-                //document.getElementById('previewText').innerHTML = "Preview of Device "+dev+" with Dataset "+dat;
-                document.getElementById('dev-text').value = dev;
-                document.getElementById('data-text').value=dat;
                 
                 for(var i=0;i<datasets.length;i++){
                     if(datasets[i].id===dat){
@@ -90,8 +91,8 @@
                     }
                 }
                 loadData(arr,mappings)
-            }
-            var index = 0
+            } 
+            var index = 0;
             function addGroup(){
                 var dev = document.getElementById('devSel').value;
                 var dat = document.getElementById('dataSel').value;
@@ -99,27 +100,49 @@
                     alert("Please choose a device and a dataset");
                     return;
                 }
+                getStartingNum(function(list){
+                    var startI = list[0];
+                    if(!startI)
+                        startI = 0
+                    else
+                        startI = parseInt(startI.slice(3,5))+1
+                    var mps = document.getElementsByClassName('mapRow');
+                    var temp = [];
+                    for(var i=0;i<mps.length;i++){
+                        temp[i] = mps[i];
+                    }
+                    cleanDisplay();
+                    for(var j=startI;j<startI+temp.length;j++){
+                        var r = temp[j-startI].childNodes;
+                        sendMappings(r,j);
+                    }
+                });
+            }
+            function cleanDisplay(){
                 var div = document.createElement('div');
-                div.setAttribute('class','grouping');
+                div.setAttribute('class','grouping '+index);
                 
                 var img = document.createElement('img')
                 img.setAttribute('class','grouping-delete');
-                img.setAttribute('src','pics/trash.png')
+                img.setAttribute('src','pics/trash.png');
+                img.setAttribute('width','50px');
+                img.setAttribute('height','auto')
                 
-                var head = document.createElement('h2')
+                var head = document.createElement('h3')
                 head.setAttribute('style','color:white')
                 head.innerHTML = 'Group '+index;
                 
                 var name = document.createElement('p');
-                name.setAttribute('style','text-indent:50px')
-                name.innerHTML = "Device: "+ document.getElementById('dev-text').value
+                name.innerHTML = "Device: "+ document.getElementById('devSel').value
                 
                 var data = document.createElement('p');
-                data.setAttribute('style','text-indent:50px')
-                data.innerHTML = "Dataset: "+ document.getElementById('data-text').value
+                data.innerHTML = "Dataset: "+ document.getElementById('dataSel').value
                 
-                var maps = document.createElement('p'); maps.setAttribute('style','text-indent:50px')
-                maps.innerHTML = document.getElementsByClassName('mapRow').length+" Mappings"
+                var maps = document.createElement('p');
+                var mps = document.getElementsByClassName('mapRow')
+                var reads = countReads(mps);
+                var writes = mps.length-reads;
+                maps.innerHTML = reads+" Mappings"
                 
                 div.appendChild(img);
                 div.appendChild(head);
@@ -127,59 +150,116 @@
                 div.appendChild(data);
                 div.appendChild(maps);
                 $('.mapRow').remove();
-                document.getElementById('result-container').appendChild(div);
+                var clone = div.cloneNode(true);
+                clone.childNodes[4].innerHTML = writes+" Mappings";
+                if(reads){
+                    document.getElementById('input-contain').appendChild(div);
+                }
+                if(writes){
+                    document.getElementById('output-contain').appendChild(clone);
+                }
                 index++;
-                
-                document.getElementById('previewText').innerHTML = "Select device and dataset to preview";
-                document.getElementById('dev-text').value = '';
-                document.getElementById('data-text').value = '';
-                $("select").val([])
+                var changes = document.getElementsByClassName('grouping '+(index-2));
+                for(var i=0;i<changes.length;i++){
+                    changes[i].childNodes[0].remove();
+                }document.getElementById('previewText').innerHTML="Preview";
+                resetSelectElement(document.getElementById('devSel'));
+                $("#dataSel")
+                    .find('option')
+                    .remove()
+                    .end()
+                ;
             }
+            function countReads(maps){
+                var total = 0;
+                for(var i=0;i<maps.length;i++){
+                    var mrcsrc = maps[i].childNodes[1].textContent;
+                    if(mrcsrc==="0101")
+                        total++;
+                }
+                return total;
+            }
+            function resetSelectElement(se){
+                se.selectedIndex = -1;
+            }
+            var fldVarPair = [
+              ["nodeid", "map00.nodeid"],
+              ["mrcsrc",     "map00.mrcsrc"],
+              ["vartype",   "map00.vartype"],
+              ["start",   "map00.start"],
+              ["num", "map00.num"],
+        ];
+        var option = []
+        function sendMappings(map,startI)
+        {
+          var num;
+          if(startI<10)
+            num = '0'+startI;
+          else
+            num = startI; //get map id of the submit
+          var header = "map"+num+".";
+          var list = ['nodeid','mrcsrc','vartype','start','num']
+          var data = "";
+              for(var i=0;i<map.length;i++){
+                  data+=header+list[i]+"="+map[i].innerHTML.toUpperCase(); //compile data string corresponding to individual map
+                  if(i!=map.length-1)
+                      data+="&";
+              }
+              HTTP.post("cgi-bin/set_map", data, function(reply){
+                  procPostReply(reply);
+              });
+              
+//              setTimeout(function(){
+//                  var el = document.getElementById('post_status');
+//                  el.parentNode.removeChild(el)
+//              },2000); //remove text after 2 seconds
+//              changeRowState(num,0); //change row style to signify successful submission
+//              localStorage.rebootNeeded = true;
+
+        }
+        
+        var master = [];
+        function asyncFunction (item, cb) {
+            if(item<10)
+                item = '0'+item;
+            HTTP.post("cgi-bin/get_map", "map"+item+".isvalid", function(reply){ 
+                if(reply.slice(-1)==="1"){
+                    master.push(reply)
+                }
+                cb();
+            })
+        }
+        function getStartingNum(callback){
+            var x = [];
+            for(var i=99;i>=0;i--){
+                x.push(i);
+            }
+            let requests = x.reduce((promiseChain,item)=>{
+                return promiseChain.then(() => new Promise((resolve)=>{
+                    asyncFunction(item,resolve)
+                }));
+            }, Promise.resolve());
+            requests.then(() => callback(master))
+
+        }
+        
         </script>
     </head>
-    <body>
+    <body style="overflow:scroll;">
         <div id="config-container">
-            <div class="select" id="left">
-                <p class="select-label">DEVICE</p>
-                <select size="3" class="groupSel" id="devSel">
-                    <optgroup label="Select one device"></optgroup>
-                </select>
-            </div>
-            <div class="select" id="right">
-                <select size="3" class="groupSel" id="dataSel" onChange="previewText()">
-                    <optgroup label="Select one dataset"></optgroup>
-                </select>
-                <p class="select-label">DATASET</p>
-            </div>
+            <select size="3" class="groupSel" id="devSel">
+                <optgroup label="Device"></optgroup>
+            </select>
+            <select size="3" class="groupSel" id="dataSel" onChange="previewText()">
+                <optgroup label="Dataset"></optgroup>
+            </select>
+            <center>
+                <input id="addGroup" class="save" style="width:200px;display:block;margin-top:5px;height:50px" type="button" onclick="addGroup()" value="Add Group"/>
+            </center>
         </div>
-        <center><p>Select a device and dataset to see a preview</p></center>
-        <center><p>Press 'Add Group' to submit your mapping group</p></center>
-        <hr>
-        
-        <div id="result-container">
-            <h2>Current Groups</h2>
-        </div>
-        
         <div id="preview-container">
-            <h3 id="previewText">Preview</h3>
-            <input id="addGroup" class="save" style="visibility:visible;width:250px;display:inline" type="button" onclick="addGroup()" value="Add Group"/>
+            <strong><p id="previewText" style="line-height:.2">Preview</p></strong>
             <table width="100%" id="previewTab">
-                <tr>
-                    <th width="25%" align="right">Device:</th>
-                    <th colspan="5">
-                        <input type="text" id="dev-text" readonly="readonly" colspan="20"/>
-                    </th>
-                </tr>
-                <tr>
-                    <th width="25%" align="right">Dataset:</th>
-                    <th colspan="5">
-                        <input type="text" id="data-text" readonly="readonly" colspan="20"/>
-                    </th>
-                </tr>
-                <tr>
-                    <th>Mappings:</th>
-                    <th>
-                </tr>
                 <tr>
                     <th >Node ID</th>
                     <th>MRC/SRC</th>
@@ -189,5 +269,16 @@
                 </tr>
             </table>
         </div>
+        <hr>
+        <div id="result-container">
+            <h2 id="post_status">Current Groups</h2>
+            <div class="side-contain" id="input-contain">
+                <h3>Input</h3>
+            </div>
+            <div class="side-contain" id="output-contain">
+                <h3>Output</h3>
+            </div>
+        </div>
+        
     </body>
 </html>

@@ -2,10 +2,10 @@ body {
   font-size: 16px;
   font-weight: normal;
   margin: 0px;
-  background-color: lightgray;
-  font-family: 'Montserrat', sans-serif;
+  background-color: #eeeeee;
+  font-family: "Montserrat", sans-serif;
   overflow-x:hidden;
-  overflow-y:auto;
+  overflow-y:scroll;
 }
 input:focus{
     outline: none;
@@ -18,29 +18,29 @@ input:focus{
     font-size: 100px; 
 }
 #holder:hover{
-    color: #009899;
+    color: #20c0bb ;
 }
 /* ------------------------------------------------------------------------------------ */
 #top-container{
     width: 100%;
     margin: auto;
-    background-color: #009899;
+    background-color: #20c0bb ;
 }
 #logo{
-    padding-left: 50px;
-    padding-top: 15px;
+    padding-left: 3%;
+    padding-top: 3%;
 }
 #logo-container{
     width:65%;
     float: left;
     height: 88;
-    background-color: #009899;
+    background-color: #20c0bb;
 }
 #banner{
     width: 450%;
     float: left;
     height: 90px;
-    background-color: #009899;
+    background-color: #20c0bb ;
     text-align: center;
 }
 #clear{
@@ -97,7 +97,7 @@ input:focus{
     clear:left;
     width:100%;
     height:5px;
-    background-color: lightgrey;
+    background-color: #eeeeee;
 }
 #menu-container{
     width:15%;
@@ -110,7 +110,7 @@ input:focus{
     height:40px;
     width:100%;
     color:White;
-    background-color: #009899;
+    background-color: #20c0bb ;
     cursor: text;
 }
 .optno{
@@ -204,7 +204,7 @@ td{
 .save {
   display: inline-block;
   border-radius: 4px;
-  background-color: #009899;
+  background-color: #20c0bb ;
   border: none;
   color: #FFFFFF;
   text-align: center;
@@ -229,7 +229,7 @@ td{
     color: white;
 }
 #mappingHeader{
-    background-color: #009899;
+    background-color: #20c0bb ;
 }
 #buttons-container{
     padding: 40px;
@@ -292,7 +292,7 @@ td{
 }
 .asmTh{
     color: white;
-    background: #009899;
+    background: #20c0bb ;
     border-bottom: 1px solid black;
 }
 .asmTab{
@@ -304,7 +304,7 @@ td{
 #pop{
     height:30px;
     border: 1px solid black;
-    background: #009899;
+    background: #20c0bb ;
     white-space: normal;
     overflow:overlay;
     border-radius: 15px;
@@ -313,7 +313,6 @@ td{
 }
 .asmDiv{
     height: 30px;
-    //overflow: hidden;
     position: relative;
     z-index: 0;
 }
@@ -348,30 +347,36 @@ td{
 }
 /* ------------------------------------------------------------------------------------ */
 #config-container{
-    position: inline-block;
-    height: 150px;
+    display: inline-block;
+    vertical-align: middle;
+    height: 35%;
+    width:50%;
+    text-align: center;
 }
 #result-container{
     display: inline-block;
     height: 300px;
-    width:55%;
+    width:100%;
     text-align: center;
 }
 #preview-container{
     display: inline-block;
-    height:800px;
-    width:40%;
+    vertical-align: middle;
+    height: 35%;
+    width:50%;
     text-align: center;
     float:right;
-    border-left: 1px solid black;
+    overflow-x: hidden;
+    overflow-y: scroll;
 }
-.grouping{
-    width: 30%;
+div[class^='grouping']{
+    line-height: .5;
+    width: 75%;
     border: 1px solid black;
     margin: 5px;
     text-align: left;
     display: inline-block;
-    background-color: #009899;
+    background-color: #20c0bb ;
     padding-left: 5px;
     border-radius: 5px;
 }
@@ -389,26 +394,17 @@ td{
 .select#left{
     text-align: right;
 }
-.select#right{
-    text-align: left;
-}
 .groupSel{
     display: inline-block;
-    background-color: #009899;
+    background-color: #20c0bb ;
     color: white;
-    width: 175px;
+    width: 30%;
     height:65%;
     font-size: 18px;
     text-align: center;
     border-radius: 5px;
-}
-.groupSel#devSel{
-    margin-right: 10%;
-    margin-left: 5%;
-}
-.groupSel#dataSel{
-    margin-left: 10%;
-    margin-right: 5%;
+    margin-top: 5px;
+    margin-left: 10px
 }
 .select-label{
     display: inline-block;
@@ -416,6 +412,16 @@ td{
     font-weight: bold;
 }
 .disabled{
-    background-color: lightgray;
+    background-color: #eeeeee;
     border: 1px solid black;
+}
+.side-contain{
+    width:49.6%;
+}
+#input-contain{
+    float:left;
+    border-right: 5px solid black;
+}
+#output-contain{
+    float:right;
 }
