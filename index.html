@@ -60,10 +60,10 @@
             if(isTrueSet){
                   e.firstChild.firstChild.nodeValue = "Reboot needed for changes to take effect"
                   e.style.color = "red"
-                  e.style.visibility = "visible";
+                  e.style.display = "block";
             }
             else{
-                e.style.visibility = "hidden"
+                e.style.display = "none"
             }
 
         }
@@ -93,7 +93,7 @@
                 <a href="https://gridconnect.com/" target="child_p"><img id="logo" src="pics/gclogo.png"></a>
             </div>
             <p style="color:white" id="swver">Software Version:</p>
-            <p style="color:white">Webpage Version: v0.0.1</p>
+            <p style="color:white">Webpage Version: v0.0.2</p>
             <p style="color:white" id="macaddr">MAC Address:</p>
         </div>
         
@@ -143,7 +143,7 @@
                 <hr>
                 <div id="reboot">
                     <form name="form1" style="width:100%;text-align:center; padding-top: 5px;height:20px; margin: 0 auto;">
-                        <p id="needed" style="position:relative;visibility:hidden;right:15%;"><b>--</b></p>
+                        <p id="needed" style="position:relative;right:15%;"><b>Loading...</b></p>
                         <input id="rebootbutton" class="save" style="visibility:visible;right:15%;position:relative;" type="button" name="reboot" value="  Reboot  " onClick="return doReboot()" />
                         <p id="post_status" style="position:relative;visibility: hidden;right:15%;"><b>--</b></p>
                     </form>

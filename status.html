@@ -15,7 +15,7 @@
     
     <div style="width:100%;height:20px"></div>
 
-    <center style="font-size:42px;line-height:.5"><strong onclick="addMapToTable('map00.nodeid=03,map00.mrcsrc=0101,map00.vartype=C3,map00.start=0000,map00.num=0003,map00.bytes=12')">Status</strong></center>
+    <center style="font-size:36px;line-height:.5"><strong onclick="addMapToTable('map00.nodeid=03,map00.mrcsrc=0101,map00.vartype=C3,map00.start=0000,map00.num=0003,map00.bytes=12')">Status</strong></center>
     <div style="width:100%;height:20px"></div>
     <hr>
     <div style="width:100%;height:25%;position:relative;overflow:scroll;text-align:center;overflow:hidden">
@@ -153,8 +153,8 @@
             row.onclick = function(){
                 var url = "mappings-static.html#mappingHeader";
                 location.href=url;
+                select(4);
             };
-            
             var cell1 = row.insertCell(0);
             var cell2 = row.insertCell(1);
             var cell3 = row.insertCell(2);
