@@ -13,6 +13,7 @@
             function load() {
                  for(var i=0;i<devices.length;i++)
                      createOption('devSel',devices[i].devname,devices[i].id)
+                 initPage()
              }
             $(document).ready(function(){
                 $('#devSel').on('change',function(){
@@ -26,7 +27,7 @@
                         .find('option')
                         .remove()
                         .end()
-                    loadData(arr,datasets)
+                    loadData(arr,datasets,i)
                 });
                 $.getJSON('data.json', function(response){
                     JSON = response;
@@ -44,11 +45,13 @@
                   e.preventDefault();  
                 });
             })
-            function loadData(arr,list){
+            function loadData(arr,list,a){
                 for(var i=0;i<arr.length;i++){
                     var dtd = binSearchData(parseInt(arr[i]),0,list.length-1,list)
-                    if(list==datasets)
-                        createOption('dataSel',dtd.dataname,dtd.id)
+                    if(list==datasets){
+                        createOption('dataSel',dtd.dataname,dtd.id);
+                        document.getElementById('hiddenText').innerHTML="Device ID"+devices[a].id;
+                    }
                     else if(list==mappings){
                         var row = document.getElementById('previewTab').insertRow(-1);
                         row.setAttribute('class','mapRow');
@@ -58,8 +61,16 @@
                             var txt = document.createTextNode(dtd[keys[j]]);
                             td.appendChild(txt);
                             row.appendChild(td);
-                            document.getElementById('previewText').innerHTML="Preview- ("+arr.length+" Mappings)";
                         }
+                        td = document.createElement('td');
+                        td.setAttribute('style','display:none')
+                        txt = document.createTextNode("0");
+                        txt.nodeValue+=document.getElementById('hiddenText').innerHTML.slice(-3);
+                        txt.nodeValue+=("00"+parseInt(a).toString(16)).substr(-2);
+                        txt.nodeValue+=("00"+parseInt(arr.indexOf(dtd["id"]).toString(16))).substr(-2);
+                        td.appendChild(txt);
+                        row.appendChild(td);
+                        document.getElementById('previewText').innerHTML="Preview- ("+arr.length+" Mappings)";
                     }
                 }
             }
@@ -90,7 +101,7 @@
                         break;
                     }
                 }
-                loadData(arr,mappings)
+                loadData(arr,mappings,document.getElementById("dataSel").selectedIndex)
             } 
             var index = 0;
             function addGroup(){
@@ -198,7 +209,7 @@
           else
             num = startI; //get map id of the submit
           var header = "map"+num+".";
-          var list = ['nodeid','mrcsrc','vartype','start','num']
+          var list = ['nodeid','mrcsrc','vartype','start','num','did']
           var data = "";
               for(var i=0;i<map.length;i++){
                   data+=header+list[i]+"="+map[i].innerHTML.toUpperCase(); //compile data string corresponding to individual map
@@ -208,16 +219,7 @@
               HTTP.post("cgi-bin/set_map", data, function(reply){
                   procPostReply(reply);
               });
-              
-//              setTimeout(function(){
-//                  var el = document.getElementById('post_status');
-//                  el.parentNode.removeChild(el)
-//              },2000); //remove text after 2 seconds
-//              changeRowState(num,0); //change row style to signify successful submission
-//              localStorage.rebootNeeded = true;
-
         }
-        
         var master = [];
         function asyncFunction (item, cb) {
             if(item<10)
@@ -242,7 +244,32 @@
             requests.then(() => callback(master))
 
         }
-        
+        function initPage(){
+            var used = []
+            getData(0,100,function(reply){
+                if(reply.slice(-1)==1){
+                    HTTP.post("cgi-bin/get_map", reply.slice(0,6)+"did", function(rep){
+                        var did = rep.slice(-8);
+                        if(parseInt(did) && used.indexOf(did.slice(1,6))==-1){
+                            var id = did.slice(1,4);
+                            for(var i=0;i<devices.length;i++){
+                                if(devices[i].id === id){
+                                    document.getElementById('devSel').selectedIndex = i.toString();
+                                    $('#devSel').change();
+                                    break;
+                                }
+                            }
+                            var ind = did.slice(4,6)
+                            document.getElementById('dataSel').selectedIndex = ind;
+                            $('#dataSel').change();
+                            used.push(did.slice(1,6))
+                            cleanDisplay();
+                        }
+                    });
+                }
+            })
+            
+        }
         </script>
     </head>
     <body style="overflow:scroll;">
@@ -258,6 +285,7 @@
             </center>
         </div>
         <div id="preview-container">
+            <strong><p id="hiddenText" style="line-height:.2;display:none"></p></strong>
             <strong><p id="previewText" style="line-height:.2">Preview</p></strong>
             <table width="100%" id="previewTab">
                 <tr>
@@ -266,6 +294,7 @@
                     <th>Var Type</th>
                     <th>Start Addr</th>
                     <th>Num Elements</th>
+                    <th style="display:none">Index Stuff</th>
                 </tr>
             </table>
         </div>

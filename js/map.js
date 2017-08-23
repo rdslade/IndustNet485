@@ -72,15 +72,13 @@ function adjust(num){ //makes 1 digit numbers into 2 digit numbers
     if(num.toString().length==1)   return '0'+num;
     else                           return num;
 }
-function getData(min,max){ //called on load to get the valid mappings
+function getData(min,max,cb){ //called on load to get the valid mappings
     var arr = [];
     for(var i=min;i<max;i++){
         arr.push(i);
     }
     arr.forEach(function(element){
         e = adjust(element);
-        HTTP.post("cgi-bin/get_map", "map"+e+".isvalid", function(reply){ 
-            doGetData(reply) //send the isValid request responds for further parsing
-        })
+        HTTP.post("cgi-bin/get_map", "map"+e+".isvalid", cb)
     })
 }

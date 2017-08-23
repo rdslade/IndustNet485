@@ -8,7 +8,7 @@
         <script language="JavaScript" src="js/support.js"></script>
         <script language="JavaScript" src="js/http.js"></script>
     </head>
-    <body onload="initPage();getData(0,100)">
+    <body onload="initPage();getData(0,100,doGetData)">
         <form name="form1" class = "mapform">
         <table align='center' id="mapping-table">
             <tr id="mappingHeader">
@@ -49,10 +49,9 @@
                       alert("Fields entered incorrectly")
                       return false;
                   }
-                  data+=header+list[i]+"="+inputs[i].value.toUpperCase(); //compile data string corresponding to individual map
-                  if(i!=inputs.length-1)
-                      data+="&";
+                  data+=header+list[i]+"="+inputs[i].value.toUpperCase()+"&"; //compile data string corresponding to individual map
               }
+              data+=header+"did"+"="+"00000000";
               addRowText(num); //add post status text beneath current row
               HTTP.post("cgi-bin/set_map", data, function(reply){
                   if(reply && reply.slice(0,5).toLowerCase()==="error"){ //if the post has an error
@@ -115,6 +114,7 @@
                 ["vartype"+i,"map"+i+".vartype"],
                 ["start"+i,"map"+i+".start"],
                 ["num"+i,"map"+i+".num"],
+                ["did"+i,"map"+i+".did"]
             ]
             loadMapData();
             if(reply.slice(-1)==="1"){ //if the mapping is valid
@@ -131,9 +131,6 @@
             var ele = document.getElementsByName(fnam)[0];
             if(ele){
                 ele.value = decodeStr(fval);
-            }
-            else{
-                alert("No field for "+ fnam);
             }
         }
         function initPage(){ //called to initiate the 100 static rows of the mapping table
@@ -269,11 +266,11 @@
             else if(num==2){
                 document.getElementById('cancel'+r).value = 'Edit';
                 document.getElementById('cancel'+r).id = 'edit'+r;
-                getData(parseInt(r),parseInt(r)+1);
+                getData(parseInt(r),parseInt(r)+1,doGetData);
                 changeRowState(r,0);
             }
             else if(num==3){
-                getData(parseInt(r),parseInt(r)+1);
+                getData(parseInt(r),parseInt(r)+1,doGetData);
                 changeRowState(r,0);
             }
             if(num==-1){
