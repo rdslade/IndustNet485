@@ -8,7 +8,7 @@
         <script language="JavaScript" src="js/support.js"></script>
         <script language="JavaScript" src="js/http.js"></script>
     </head>
-    <body onload="initPage();getData(0,100,doGetData)">
+    <body onload="initPage();checkIsValid(0,100,doGetData)">
         <form name="form1" class = "mapform">
         <table align='center' id="mapping-table">
             <tr id="mappingHeader">
@@ -21,6 +21,7 @@
                 <th class="mappingh">Submit Mapping</th>
                 <th class="mappingh">Edit Mapping</th>
                 <th class="mappingh">Delete Mapping</th>
+                <th class="mappingh">Mapping Type</th>
             </tr>
         </table>
         </form>
@@ -116,7 +117,7 @@
                 ["num"+i,"map"+i+".num"],
                 ["did"+i,"map"+i+".did"]
             ]
-            loadMapData();
+            loadMapData(procMapDataReply);
             if(reply.slice(-1)==="1"){ //if the mapping is valid
                 changeRowState(i,0); //change row to successful submission
             }
@@ -132,6 +133,13 @@
             if(ele){
                 ele.value = decodeStr(fval);
             }
+        }
+        function makeMappingFromGroup(fld){
+            var num = fld.slice(-2);
+            document.getElementById('maporigin'+num).innerHTML = "Group";
+            document.getElementById('submit'+num).disabled = true;
+            document.getElementById('edit'+num).disabled = true;
+            document.getElementById('del'+num).disabled = true;
         }
         function initPage(){ //called to initiate the 100 static rows of the mapping table
             for(var i=0;i<100;i++){ //100 rows
@@ -149,6 +157,7 @@
                 var cell6 = row.insertCell(6);
                 var cell7 = row.insertCell(7);
                 var cell8 = row.insertCell(8);
+                var cell9 = row.insertCell(9);
                 
                 var txt = document.createElement('p');
                 var n = document.createTextNode(i);
@@ -218,6 +227,12 @@
                 del.setAttribute('id','del'+i);
                 del.setAttribute('onclick','processForm(this.id)')
                 cell8.appendChild(del); //delete button
+                
+                var maporigin = document.createElement('p');
+                var m = document.createTextNode('Custom');
+                maporigin.appendChild(m)
+                maporigin.setAttribute('id','maporigin'+i)
+                cell9.appendChild(maporigin);
             }
         }
         function changeRowState(r,num){ //changes the style of the row depending on if it has been submitted, edited, ect.
@@ -266,24 +281,17 @@
             else if(num==2){
                 document.getElementById('cancel'+r).value = 'Edit';
                 document.getElementById('cancel'+r).id = 'edit'+r;
-                getData(parseInt(r),parseInt(r)+1,doGetData);
+                checkIsValid(parseInt(r),parseInt(r)+1,doGetData);
                 changeRowState(r,0);
             }
             else if(num==3){
-                getData(parseInt(r),parseInt(r)+1,doGetData);
+                checkIsValid(parseInt(r),parseInt(r)+1,doGetData);
                 changeRowState(r,0);
             }
             if(num==-1){
                 document.getElementById('del'+r).disabled = true;
             }
-        }
-        function loadMapData(){
-            var getList = [];
-            var i;
-            for (i = 0; i < fldVarPair.length; i++)
-                getList.push(fldVarPair[i][1]);
-
-            HTTP.post("cgi-bin/get_map", getList.join(','), procMapDataReply);
+            
         }
     </script>
 </html>

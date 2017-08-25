@@ -13,7 +13,7 @@
             function load() {
                  for(var i=0;i<devices.length;i++)
                      createOption('devSel',devices[i].devname,devices[i].id)
-                 initPage()
+                 initPage("load")
              }
             $(document).ready(function(){
                 $('#devSel').on('change',function(){
@@ -44,6 +44,9 @@
                   this.scrollTop += ( delta < 0 ? 1 : -1 ) * 30;
                   e.preventDefault();  
                 });
+                $("input").click(function(e){
+                    e.stopPropagation();
+                })
             })
             function loadData(arr,list,a){
                 for(var i=0;i<arr.length;i++){
@@ -56,9 +59,14 @@
                         var row = document.getElementById('previewTab').insertRow(-1);
                         row.setAttribute('class','mapRow');
                         var keys = Object.keys(dtd);
-                        for(var j=1;j<keys.length;j++){
-                            var td = document.createElement('td')
-                            var txt = document.createTextNode(dtd[keys[j]]);
+                        for(var j=0;j<keys.length;j++){
+                            var td = document.createElement('td');
+                            var txt;
+                            if(j==0)
+                                txt = document.createTextNode("");
+                            else
+                                txt = document.createTextNode(dtd[keys[j]]);
+                            
                             td.appendChild(txt);
                             row.appendChild(td);
                         }
@@ -71,6 +79,7 @@
                         td.appendChild(txt);
                         row.appendChild(td);
                         document.getElementById('previewText').innerHTML="Preview- ("+arr.length+" Mappings)";
+                        fillNodeID(document.getElementById('nid').value)
                     }
                 }
             }
@@ -107,27 +116,57 @@
             function addGroup(){
                 var dev = document.getElementById('devSel').value;
                 var dat = document.getElementById('dataSel').value;
-                if(!dev || !dat){
-                    alert("Please choose a device and a dataset");
+                var nid = document.getElementById('nid').value;
+                var did = document.getElementById('previewTab').childNodes[1].childNodes[2].childNodes[5].textContent;
+                if(!dev || !dat || !nid.match(/[0-9]{2}/)){
+                    alert("Please choose a device, dataset, and Node ID");
                     return;
                 }
-                getStartingNum(function(list){
-                    var startI = list[0];
-                    if(!startI)
-                        startI = 0
+                checkDuplicates(nid,did,function(dup){
+                    if(!dup){
+                        getStartingNum(function(list){
+                            var startI = list[0];
+                            if(!startI)
+                                startI = 0
+                            else
+                                startI = parseInt(startI.slice(3,5))+1
+                            var mps = document.getElementsByClassName('mapRow');
+                            var temp = [];
+                            for(var i=0;i<mps.length;i++){
+                                temp[i] = mps[i];
+                            }
+                            for(var j=startI;j<startI+temp.length;j++){
+                                var r = temp[j-startI].childNodes;
+                                sendMappings(r,j,j==startI+temp.length-1);
+                            }
+                        });
+                    }
                     else
-                        startI = parseInt(startI.slice(3,5))+1
-                    var mps = document.getElementsByClassName('mapRow');
-                    var temp = [];
-                    for(var i=0;i<mps.length;i++){
-                        temp[i] = mps[i];
+                        document.getElementById('post_status').innerHTML = "Error: cannot set duplicate groupings"
+                })
+            }
+            function deleteGroupings(div){
+                var dev = div.childNodes[2].innerHTML.slice(-3);
+                var data = div.childNodes[3].innerHTML.slice(-4);
+                for(var i=0;i<devices.length;i++){
+                    if(devices[i].id===dev){
+                        var index = devices[i].datasets.indexOf(data);
+                        var delCode = dev+("00"+parseInt(index).toString(16)).substr(-2);
+                        var arr = [];
+                        for(var i=0;i<100;i++){
+                            arr.push(i);
+                        }
+                        arr.forEach(function(element){
+                            var e = adjust(element);
+                            HTTP.post("cgi-bin/get_map", "map"+e+".did", function(reply){
+                                if(reply.split('=')[1].slice(1,6)===delCode)
+                                    HTTP.post("cgi-bin/del_map","map="+e,procPostReply)
+                            })
+                        })
+                        div.parentElement.removeChild(div);
+                        setTimeout(function(){location.reload()},3000);
                     }
-                    cleanDisplay();
-                    for(var j=startI;j<startI+temp.length;j++){
-                        var r = temp[j-startI].childNodes;
-                        sendMappings(r,j);
-                    }
-                });
+                }
             }
             function cleanDisplay(){
                 var div = document.createElement('div');
@@ -136,12 +175,13 @@
                 var img = document.createElement('img')
                 img.setAttribute('class','grouping-delete');
                 img.setAttribute('src','pics/trash.png');
+                img.setAttribute('onclick','deleteGroupings(this.parentElement)')
                 img.setAttribute('width','50px');
                 img.setAttribute('height','auto')
                 
                 var head = document.createElement('h3')
                 head.setAttribute('style','color:white')
-                head.innerHTML = 'Group '+index;
+                head.innerHTML = 'Group'
                 
                 var name = document.createElement('p');
                 name.innerHTML = "Device: "+ document.getElementById('devSel').value
@@ -155,11 +195,15 @@
                 var writes = mps.length-reads;
                 maps.innerHTML = reads+" Mappings"
                 
+                var nid = document.createElement('p');
+                nid.innerHTML = mps[0].childNodes[0].textContent;
+                
                 div.appendChild(img);
                 div.appendChild(head);
                 div.appendChild(name);
                 div.appendChild(data);
                 div.appendChild(maps);
+                div.appendChild(nid);
                 $('.mapRow').remove();
                 var clone = div.cloneNode(true);
                 clone.childNodes[4].innerHTML = writes+" Mappings";
@@ -201,10 +245,10 @@
               ["num", "map00.num"],
         ];
         var option = []
-        function sendMappings(map,startI)
-        {
-          var num;
-          if(startI<10)
+        var sucMap = [];
+        function sendMappings(map,startI,last){
+            var num;
+            if(startI<10)
             num = '0'+startI;
           else
             num = startI; //get map id of the submit
@@ -218,7 +262,44 @@
               }
               HTTP.post("cgi-bin/set_map", data, function(reply){
                   procPostReply(reply);
+                  if(reply.slice(0,5)==="Error"){
+                      cb(false);
+                  }
+                  else{
+                    if(last)
+                        cleanDisplay();
+                  }
+
               });
+        };
+        function checkDuplicates(nid,d,cb){
+            var stopped = false;
+            var loadsLeft = 0;
+            var checksLeft = 0;
+            checkIsValid(0,100,function(reply){
+                checksLeft++;
+                if(reply.slice(-1)==1){
+                    fldVarPair = [
+                        ["nodeid",reply.slice(0,6)+"nodeid"],
+                        ["did",reply.slice(0,6)+"did"]
+                    ];
+                    loadsLeft++;
+                    loadMapData(function(rep){
+                        var a = rep.split(',')
+                        var nodeid = a[0].slice(-2);
+                        var did = a[1].slice(-8);
+                        if(nid===nodeid && d.slice(1,6)===did.slice(1,6)){
+                            cb(true);
+                            stopped = true;
+                        }
+                        if(--loadsLeft==0){
+                            if(!stopped)
+                                cb(false);
+                        }
+                    })
+                }
+                
+            })
         }
         var master = [];
         function asyncFunction (item, cb) {
@@ -244,13 +325,25 @@
             requests.then(() => callback(master))
 
         }
-        function initPage(){
-            var used = []
-            getData(0,100,function(reply){
+        function fillNodeID(v){
+            var tab = document.getElementById('previewTab');
+            for(var i=2;i<tab.childNodes[1].childNodes.length;i++){
+                tab.childNodes[1].childNodes[i].childNodes[0].innerHTML = v;
+            }
+        }
+        function initPage(str){
+            var used = [];
+            checkIsValid(0,100,function(reply){
                 if(reply.slice(-1)==1){
-                    HTTP.post("cgi-bin/get_map", reply.slice(0,6)+"did", function(rep){
-                        var did = rep.slice(-8);
-                        if(parseInt(did) && used.indexOf(did.slice(1,6))==-1){
+                    fldVarPair = [
+                        ["nodeid",reply.slice(0,6)+"nodeid"],
+                        ["did",reply.slice(0,6)+"did"]
+                    ];
+                    loadMapData(function(rep){
+                        var a = rep.split(',');
+                        var nodeid = a[0].slice(-2);
+                        var did = a[1].slice(-8);
+                        if(parseInt(did) && used.indexOf(did.slice(1,6)+nodeid)==-1){
                             var id = did.slice(1,4);
                             for(var i=0;i<devices.length;i++){
                                 if(devices[i].id === id){
@@ -262,13 +355,12 @@
                             var ind = did.slice(4,6)
                             document.getElementById('dataSel').selectedIndex = ind;
                             $('#dataSel').change();
-                            used.push(did.slice(1,6))
+                            used.push(did.slice(1,6)+nodeid)
                             cleanDisplay();
                         }
-                    });
-                }
+                    })
+                };
             })
-            
         }
         </script>
     </head>
@@ -281,7 +373,7 @@
                 <optgroup label="Dataset"></optgroup>
             </select>
             <center>
-                <input id="addGroup" class="save" style="width:200px;display:block;margin-top:5px;height:50px" type="button" onclick="addGroup()" value="Add Group"/>
+                <div id="addGroup" class="save" style="width:200px;display:block;margin-top:5px;height:30%" type="button" onclick="addGroup();">Add Group<input onkeyup="fillNodeID(this.value)" placeholder="Node ID" type="text" style="width:150px;text-align:center;" id="nid"/></div>
             </center>
         </div>
         <div id="preview-container">
@@ -298,7 +390,7 @@
                 </tr>
             </table>
         </div>
-        <hr>
+
         <div id="result-container">
             <h2 id="post_status">Current Groups</h2>
             <div class="side-contain" id="input-contain">

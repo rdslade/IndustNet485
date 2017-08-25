@@ -11,7 +11,7 @@ function validateField(num,fld){
         6- # of elements
     */
     var pat1 = /[^0-9]/; //tests regex pattern to make sure field is two digit number
-    var pat2 = /[^0-9 ^a-f ^A-F]/; //test regex pattern to make sure field is 
+    var pat2 = /[^0-9 ^a-f ^A-F]/; //test regex pattern to make sure field is hex
     if(num==1 || num==2){
         if(!pat1.test(fld.value) && fld.value.length==2){ //if field is two digit number
             var n = parseInt(fld.value,10);
@@ -60,7 +60,7 @@ function finalValidate(num){ //called to loop over each field per row; checks by
     var children = document.getElementsByClassName('input'+num);
     for(var i=0;i<children.length;i++){
         var str = children[i].type;
-        if(children[i].style.color!='green' && !str==="select"){
+        if(children[i].style.color!='green' && str!=="select-one"){
             alert("Fields entered incorrectly");
             return;
         }
@@ -72,7 +72,7 @@ function adjust(num){ //makes 1 digit numbers into 2 digit numbers
     if(num.toString().length==1)   return '0'+num;
     else                           return num;
 }
-function getData(min,max,cb){ //called on load to get the valid mappings
+function checkIsValid(min,max,cb){ //called on load to get the valid mappings
     var arr = [];
     for(var i=min;i<max;i++){
         arr.push(i);
@@ -81,4 +81,12 @@ function getData(min,max,cb){ //called on load to get the valid mappings
         e = adjust(element);
         HTTP.post("cgi-bin/get_map", "map"+e+".isvalid", cb)
     })
+}
+function loadMapData(cb){
+            var getList = [];
+            var i;
+            for (i = 0; i < fldVarPair.length; i++)
+                getList.push(fldVarPair[i][1]);
+
+            HTTP.post("cgi-bin/get_map", getList.join(','), cb);
 }

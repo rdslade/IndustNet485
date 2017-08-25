@@ -35,7 +35,12 @@ function procMapDataReply(replyText){
     var vpair = vlist[i].split("=");
     var all = vpair[0].split('.');
     var fld = all[1]+all[0].slice(-2);
-    setFormField(fld,vpair[1]);
+    if(i==vlist.length-1){
+        if(parseInt(vlist[5].split('=')[1]))
+            makeMappingFromGroup(all[0])
+    }
+    else
+        setFormField(fld,vpair[1]);
   }
 }
 
