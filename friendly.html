@@ -15,42 +15,41 @@
                      createOption('devSel',devices[i].devname,devices[i].id)
                  initPage("load")
              }
-            $(document).ready(function(){
-                $('#devSel').on('change',function(){
+            function ready(){
+                document.querySelector("#devSel").addEventListener('change',function(){
                     for(var i=0;i<devices.length;i++){
-                        if(devices[i].id===$(this).val()){
+                        if(devices[i].id===this.val()){
                             var arr = devices[i].datasets;
                             break;
                         }
                     }
-                    $("#dataSel")
-                        .find('option')
-                        .remove()
-                        .end()
-                    loadData(arr,datasets,i)
-                });
-                $.getJSON('data.json', function(response){
+                    document.querySelector("#dataSel")
+                        .querySelectorAll('option')
+                        .parentNode.removeChild(this);
+                    loadData(arr,datasets,i);
+                }, false);
+                loadJSON('data.json', function(response){
                     JSON = response;
                     devices = JSON["devs"];
                     datasets = JSON["dsets"];
                     mappings = JSON["maps"];
                     load();
-                })
-                $('select,#preview-container').on( 'mousewheel DOMMouseScroll', function (e) { 
+                });
+                document.querySelectorAll('select,#preview-container').addEventListener( 'mousewheel DOMMouseScroll', function (e) { 
   
                   var e0 = e.originalEvent;
                   var delta = e0.wheelDelta || -e0.detail;
 
                   this.scrollTop += ( delta < 0 ? 1 : -1 ) * 30;
                   e.preventDefault();  
-                });
-                $("input").click(function(e){
+                }, false);
+                document.querySelector("input").addEventListener('click', (function(e){
                     e.stopPropagation();
-                })
+                }, false);
             })
             function loadData(arr,list,a){
                 for(var i=0;i<arr.length;i++){
-                    var dtd = binSearchData(parseInt(arr[i]),0,list.length-1,list)
+                    var dtd = binSearchData(parseInt("0x"+arr[i]),0,list.length-1,list)
                     if(list==datasets){
                         createOption('dataSel',dtd.dataname,dtd.id);
                         document.getElementById('hiddenText').innerHTML="Device ID"+devices[a].id;
@@ -100,7 +99,7 @@
                 document.getElementById(select).add(opt)
             }
             function previewText(){
-                $('.mapRow').remove();
+                document.querySelector('.mapRow').parentNode.removeChild();
                 var dev = document.getElementById('devSel').value;
                 var dat = document.getElementById('dataSel').value;
                 
@@ -204,7 +203,7 @@
                 div.appendChild(data);
                 div.appendChild(maps);
                 div.appendChild(nid);
-                $('.mapRow').remove();
+                document.querySelector('.mapRow').parentNode.removeChild();
                 var clone = div.cloneNode(true);
                 clone.childNodes[4].innerHTML = writes+" Mappings";
                 if(reads){
@@ -219,11 +218,9 @@
                     changes[i].childNodes[0].remove();
                 }document.getElementById('previewText').innerHTML="Preview";
                 resetSelectElement(document.getElementById('devSel'));
-                $("#dataSel")
-                    .find('option')
-                    .remove()
-                    .end()
-                ;
+                document.querySelector("#dataSel")
+                        .querySelectorAll('option')
+                        .parentNode.removeChild(this);
             }
             function countReads(maps){
                 var total = 0;
@@ -348,14 +345,12 @@
                             for(var i=0;i<devices.length;i++){
                                 if(devices[i].id === id){
                                     document.getElementById('devSel').selectedIndex = i.toString();
-                                    $('#devSel').change();
                                     break;
                                 }
                             }
                             var ind = did.slice(4,6)
                             document.getElementById('dataSel').selectedIndex = ind;
-                            $('#dataSel').change();
-                            used.push(did.slice(1,6)+nodeid)
+                            used.push(did.slice(1,6)+nodeid);
                             cleanDisplay();
                         }
                     })
@@ -364,7 +359,7 @@
         }
         </script>
     </head>
-    <body style="overflow:scroll;">
+    <body onload="ready()" style="overflow:scroll;">
         <div id="config-container">
             <select size="3" class="groupSel" id="devSel">
                 <optgroup label="Device"></optgroup>
