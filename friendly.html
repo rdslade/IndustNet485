@@ -2,244 +2,254 @@
 <html>
     <head>
         <title>Groupings Configuration</title>
-        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.0/jquery.min.js"></script>
         <script type="text/javascript" src="data.json"></script>
         <script language="JavaScript" src="js/map.js"></script>
         <script language="JavaScript" src="js/support.js"></script>
         <script language="JavaScript" src="js/http.js"></script>
         <link rel="stylesheet" type="text/css" href="css/style.css"/>
         <link href="https://fonts.googleapis.com/css?family=Montserrat" rel="stylesheet">
-        <script type="text/javascript">
-            function load() {
-                 for(var i=0;i<devices.length;i++)
-                     createOption('devSel',devices[i].devname,devices[i].id)
-                 initPage("load")
-             }
-            function ready(){
-                document.querySelector("#devSel").addEventListener('change',function(){
-                    for(var i=0;i<devices.length;i++){
-                        if(devices[i].id===this.val()){
-                            var arr = devices[i].datasets;
-                            break;
-                        }
-                    }
-                    document.querySelector("#dataSel")
-                        .querySelectorAll('option')
-                        .parentNode.removeChild(this);
-                    loadData(arr,datasets,i);
-                }, false);
-                loadJSON('data.json', function(response){
-                    JSON = response;
-                    devices = JSON["devs"];
-                    datasets = JSON["dsets"];
-                    mappings = JSON["maps"];
-                    load();
-                });
-                document.querySelectorAll('select,#preview-container').addEventListener( 'mousewheel DOMMouseScroll', function (e) { 
-  
-                  var e0 = e.originalEvent;
-                  var delta = e0.wheelDelta || -e0.detail;
+       
+    </head>
+    <body onload="addPageEssentials();" style="overflow:scroll;">
+        <div id="config-container">
+            <select size="3" class="groupSel" id="devSel">
+                <optgroup label="Device"></optgroup>
+            </select>
+            <select size="3" class="groupSel" id="dataSel" onChange="previewText()">
+                <optgroup label="Dataset"></optgroup>
+            </select>
+            <center>
+                <input onkeyup="fillNodeID(this.value)" placeholder="Node ID" type="text" style="width:150px;text-align:center;height:15%;margin-top:5px" id="nid"/>
+                <div id="addGroup" class="save" style="width:200px;display:block;margin-top:5px;height:15%" type="button" onclick="addGroup();">Add Group</div>
+            </center>
+        </div>
+        <div id="preview-container">
+            <strong><p id="hiddenText" style="line-height:.2;display:none"></p></strong>
+            <strong><p id="previewText" style="line-height:.2">Preview</p></strong>
+            <table width="100%" id="previewTab">
+                <tr>
+                    <th >Node ID</th>
+                    <th>MRC/SRC</th>
+                    <th>Var Type</th>
+                    <th>Start Addr</th>
+                    <th>Num Elements</th>
+                    <th style="display:none">Index Stuff</th>
+                </tr>
+            </table>
+        </div>
 
-                  this.scrollTop += ( delta < 0 ? 1 : -1 ) * 30;
-                  e.preventDefault();  
-                }, false);
-                document.querySelector("input").addEventListener('click', (function(e){
-                    e.stopPropagation();
-                }, false);
-            })
-            function loadData(arr,list,a){
-                for(var i=0;i<arr.length;i++){
-                    var dtd = binSearchData(parseInt("0x"+arr[i]),0,list.length-1,list)
-                    if(list==datasets){
-                        createOption('dataSel',dtd.dataname,dtd.id);
-                        document.getElementById('hiddenText').innerHTML="Device ID"+devices[a].id;
-                    }
-                    else if(list==mappings){
-                        var row = document.getElementById('previewTab').insertRow(-1);
-                        row.setAttribute('class','mapRow');
-                        var keys = Object.keys(dtd);
-                        for(var j=0;j<keys.length;j++){
-                            var td = document.createElement('td');
-                            var txt;
-                            if(j==0)
-                                txt = document.createTextNode("");
-                            else
-                                txt = document.createTextNode(dtd[keys[j]]);
-                            
-                            td.appendChild(txt);
-                            row.appendChild(td);
-                        }
-                        td = document.createElement('td');
-                        td.setAttribute('style','display:none')
-                        txt = document.createTextNode("0");
-                        txt.nodeValue+=document.getElementById('hiddenText').innerHTML.slice(-3);
-                        txt.nodeValue+=("00"+parseInt(a).toString(16)).substr(-2);
-                        txt.nodeValue+=("00"+parseInt(arr.indexOf(dtd["id"]).toString(16))).substr(-2);
-                        td.appendChild(txt);
-                        row.appendChild(td);
-                        document.getElementById('previewText').innerHTML="Preview- ("+arr.length+" Mappings)";
-                        fillNodeID(document.getElementById('nid').value)
-                    }
-                }
+        <div id="result-container">
+            <h2 id="post_status">Current Groups</h2>
+            <div class="side-contain" id="input-contain">
+                <h3>Input</h3>
+            </div>
+            <div class="side-contain" id="output-contain">
+                <h3>Output</h3>
+            </div>
+        </div>
+        
+    </body>
+     <script>
+        function load() {
+             for(var i=0;i<devices.length;i++)
+                 createOption('devSel',devices[i].devname,devices[i].id)
+             initPage("load");
+         }
+         function removeAllOptions(sel){
+            var selLength = sel.options.length;
+            for (i = 0; i < selLength; i++) { //remove all of the dataSet options
+                sel.options[0] = null;
             }
-            function binSearchData(val,min,max,list){
-                var mid = Math.floor((min+max)/2);
-                var guess = list[mid].id
-                if(guess==val)
-                    return list[mid];
-                else if(guess<val)
-                    return binSearchData(val,mid+1,max,list)
-                else
-                    return binSearchData(val,min,mid-1,list)
-            }
-            function createOption(select,optName,optValue){
-                var opt = document.createElement('option');
-                opt.text = optName;
-                opt.value = optValue;
-                document.getElementById(select).add(opt)
-            }
-            function previewText(){
-                document.querySelector('.mapRow').parentNode.removeChild();
-                var dev = document.getElementById('devSel').value;
-                var dat = document.getElementById('dataSel').value;
-                
-                for(var i=0;i<datasets.length;i++){
-                    if(datasets[i].id===dat){
-                        var arr = datasets[i].mappings;
+         }
+        function addPageEssentials(){
+            loadJSON('data.json', function(response){
+                parsed = JSON.parse(response);
+                devices = parsed["devs"];
+                datasets = parsed["dsets"];
+                mappings = parsed["maps"];
+                load();
+            });
+            document.getElementById("devSel").onchange = function(){
+                for(var i=0;i<devices.length;i++){
+                    if(devices[i].id===this.value){
+                        var arr = devices[i].datasets;
                         break;
                     }
                 }
-                loadData(arr,mappings,document.getElementById("dataSel").selectedIndex)
+                removeAllOptions(document.getElementById("dataSel"));
+                loadData(arr,datasets,i); //replace dataSet options with those specific to selected device
             } 
-            var index = 0;
-            function addGroup(){
-                var dev = document.getElementById('devSel').value;
-                var dat = document.getElementById('dataSel').value;
-                var nid = document.getElementById('nid').value;
-                var did = document.getElementById('previewTab').childNodes[1].childNodes[2].childNodes[5].textContent;
-                if(!dev || !dat || !nid.match(/[0-9]{2}/)){
-                    alert("Please choose a device, dataset, and Node ID");
-                    return;
+//            document.querySelectorAll('select,#preview-container').addEventListener( 'mousewheel DOMMouseScroll', function (e) { 
+//
+//              var e0 = e.originalEvent;
+//              var delta = e0.wheelDelta || -e0.detail;
+//
+//              this.scrollTop += ( delta < 0 ? 1 : -1 ) * 30;
+//              e.preventDefault();  
+//            }, false);
+//            document.querySelector("input").addEventListener('click', function(e){
+//                e.stopPropagation();
+//            }, false);
+        }
+        function loadData(arr,list,a){
+            for(var i=0;i<arr.length;i++){
+                var dtd = binSearchData(arr[i],0,list.length-1,list)
+                if(list==datasets){
+                    createOption('dataSel',dtd.dataname,dtd.id);
+                    document.getElementById('hiddenText').innerHTML="Device ID"+devices[a].id;
                 }
-                checkDuplicates(nid,did,function(dup){
-                    if(!dup){
-                        getStartingNum(function(list){
-                            var startI = list[0];
-                            if(!startI)
-                                startI = 0
-                            else
-                                startI = parseInt(startI.slice(3,5))+1
-                            var mps = document.getElementsByClassName('mapRow');
-                            var temp = [];
-                            for(var i=0;i<mps.length;i++){
-                                temp[i] = mps[i];
-                            }
-                            for(var j=startI;j<startI+temp.length;j++){
-                                var r = temp[j-startI].childNodes;
-                                sendMappings(r,j,j==startI+temp.length-1);
-                            }
-                        });
+                else if(list==mappings){
+                    var row = document.getElementById('previewTab').insertRow(-1);
+                    row.setAttribute('class','mapRow');
+                    var keys = Object.keys(dtd);
+                    for(var j=0;j<keys.length;j++){
+                        var td = document.createElement('td');
+                        var txt;
+                        if(j==0)
+                            txt = document.createTextNode("");
+                        else
+                            txt = document.createTextNode(dtd[keys[j]]);
+
+                        td.appendChild(txt);
+                        row.appendChild(td);
                     }
-                    else
-                        document.getElementById('post_status').innerHTML = "Error: cannot set duplicate groupings"
-                })
+                    td = document.createElement('td');
+                    td.setAttribute('style','display:none')
+                    txt = document.createTextNode("0");
+                    txt.nodeValue+=document.getElementById('hiddenText').innerHTML.slice(-3);
+                    txt.nodeValue+=("00"+parseInt(a).toString(16)).substr(-2);
+                    txt.nodeValue+=("00"+parseInt(arr.indexOf(dtd["id"]).toString(16))).substr(-2);
+                    td.appendChild(txt);
+                    row.appendChild(td);
+                    document.getElementById('previewText').innerHTML="Preview- ("+arr.length+" Mappings)";
+                    fillNodeID(document.getElementById('nid').value)
+                }
             }
-            function deleteGroupings(div){
-                var dev = div.childNodes[2].innerHTML.slice(-3);
-                var data = div.childNodes[3].innerHTML.slice(-4);
-                for(var i=0;i<devices.length;i++){
-                    if(devices[i].id===dev){
-                        var index = devices[i].datasets.indexOf(data);
-                        var delCode = dev+("00"+parseInt(index).toString(16)).substr(-2);
-                        var arr = [];
-                        for(var i=0;i<100;i++){
-                            arr.push(i);
+        }
+        function binSearchData(val,min,max,list){
+            var mid = Math.floor((min+max)/2);
+            var guess = list[mid].id
+            var adjustedHexGuess = parseInt("0x"+guess);
+            var adjustedHexVal = parseInt("0x"+val);
+            if(adjustedHexGuess==adjustedHexVal)
+                return list[mid];
+            else if(adjustedHexGuess<adjustedHexVal)
+                return binSearchData(val,mid+1,max,list)
+            else
+                return binSearchData(val,min,mid-1,list)
+        }
+        function createOption(select,optName,optValue){
+            var opt = document.createElement('option');
+            opt.text = optName;
+            opt.value = optValue;
+            document.getElementById(select).add(opt)
+        }
+        function previewText(){
+            var mps = document.getElementsByClassName("mapRow");
+            var holdLength = mps.length;
+            for(var i = 0; i < holdLength; i++){
+                mps[0].parentNode.removeChild(mps[0])
+            }
+            var dev = document.getElementById('devSel').value;
+            var dat = document.getElementById('dataSel').value;
+
+            for(var i=0;i<datasets.length;i++){
+                if(datasets[i].id===dat){
+                    var arr = datasets[i].mappings;
+                    break;
+                }
+            }
+            loadData(arr,mappings,document.getElementById("dataSel").selectedIndex)
+        } 
+        var index = 0;
+        function addGroup(){
+            var dev = document.getElementById('devSel').value;
+            var dat = document.getElementById('dataSel').value;
+            var nid = document.getElementById('nid').value;
+            var did = document.getElementById('previewTab').childNodes[1].childNodes[2].childNodes[5].textContent;
+            if(!dev || !dat || !nid.match(/[0-9]{2}/)){
+                alert("Please choose a device, dataset, and Node ID");
+                return;
+            }
+            checkDuplicates(nid,did,function(dup){
+                if(!dup){
+                    getStartingNum(function(list){
+                        var startI = list[0];
+                        if(!startI)
+                            startI = 0
+                        else
+                            startI = parseInt(startI.slice(3,5))+1
+                        var mps = document.getElementsByClassName('mapRow');
+                        var temp = [];
+                        for(var i=0;i<mps.length;i++){
+                            temp[i] = mps[i];
                         }
-                        arr.forEach(function(element){
-                            var e = adjust(element);
-                            HTTP.post("cgi-bin/get_map", "map"+e+".did", function(reply){
-                                if(reply.split('=')[1].slice(1,6)===delCode)
-                                    HTTP.post("cgi-bin/del_map","map="+e,procPostReply)
-                            })
-                        })
-                        div.parentElement.removeChild(div);
-                        setTimeout(function(){location.reload()},3000);
+                        for(var j=startI;j<startI+temp.length;j++){
+                            var r = temp[j-startI].childNodes;
+                            sendMappings(r,j,j==startI+temp.length-1);
+                        }
+                    });
+                }
+                else
+                    document.getElementById('post_status').innerHTML = "Error: cannot set duplicate groupings"
+            })
+        }
+        function deleteGroupings(div){
+            var devName = div.childNodes[2].innerHTML.split("Device: ")[1];
+            var dev;
+            for(var i = 0; i < devices.length; i++){
+                if(devName == devices[i].devname){
+                    dev = devices[i].id;
+                    break;
+                }
+            }
+            var dataName = div.childNodes[3].innerHTML.split("Dataset: ")[1];
+            var data;
+            for(var i = 0; i < datasets.length; i++){
+                if(dataName == datasets[i].dataname){
+                    data = datasets[i].id;
+                    break;
+                }
+            }
+            for(var i=0;i<devices.length;i++){
+                if(devices[i].id===dev){
+                    var index = devices[i].datasets.indexOf(data);
+                    var delCode = (dev+("00"+parseInt(index).toString(16)).substr(-2)).toUpperCase();
+                    var arr = [];
+                    for(var i=0;i<100;i++){
+                        arr.push(i);
                     }
+                    arr.forEach(function(element){
+                        var e = adjust(element);
+                        HTTP.post("cgi-bin/get_map", "map"+e+".did", function(reply){
+                            if(reply.split('=')[1].slice(1,6)===delCode)
+                                HTTP.post("cgi-bin/del_map","map="+e,procPostReply)
+                        })
+                    })
+                    div.parentElement.removeChild(div);
+                    //setTimeout(function(){location.reload()},3000);
                 }
             }
-            function cleanDisplay(){
-                var div = document.createElement('div');
-                div.setAttribute('class','grouping '+index);
-                
-                var img = document.createElement('img')
-                img.setAttribute('class','grouping-delete');
-                img.setAttribute('src','pics/trash.png');
-                img.setAttribute('onclick','deleteGroupings(this.parentElement)')
-                img.setAttribute('width','50px');
-                img.setAttribute('height','auto')
-                
-                var head = document.createElement('h3')
-                head.setAttribute('style','color:white')
-                head.innerHTML = 'Group'
-                
-                var name = document.createElement('p');
-                name.innerHTML = "Device: "+ document.getElementById('devSel').value
-                
-                var data = document.createElement('p');
-                data.innerHTML = "Dataset: "+ document.getElementById('dataSel').value
-                
-                var maps = document.createElement('p');
-                var mps = document.getElementsByClassName('mapRow')
-                var reads = countReads(mps);
-                var writes = mps.length-reads;
-                maps.innerHTML = reads+" Mappings"
-                
-                var nid = document.createElement('p');
-                nid.innerHTML = mps[0].childNodes[0].textContent;
-                
-                div.appendChild(img);
-                div.appendChild(head);
-                div.appendChild(name);
-                div.appendChild(data);
-                div.appendChild(maps);
-                div.appendChild(nid);
-                document.querySelector('.mapRow').parentNode.removeChild();
-                var clone = div.cloneNode(true);
-                clone.childNodes[4].innerHTML = writes+" Mappings";
-                if(reads){
-                    document.getElementById('input-contain').appendChild(div);
-                }
-                if(writes){
-                    document.getElementById('output-contain').appendChild(clone);
-                }
-                index++;
-                var changes = document.getElementsByClassName('grouping '+(index-2));
-                for(var i=0;i<changes.length;i++){
-                    changes[i].childNodes[0].remove();
-                }document.getElementById('previewText').innerHTML="Preview";
-                resetSelectElement(document.getElementById('devSel'));
-                document.querySelector("#dataSel")
-                        .querySelectorAll('option')
-                        .parentNode.removeChild(this);
+        }
+       
+        function countReads(maps){
+            var total = 0;
+            for(var i=0;i<maps.length;i++){
+                var mrcsrc = maps[i].childNodes[1].textContent;
+                if(mrcsrc==="0101")
+                    total++;
             }
-            function countReads(maps){
-                var total = 0;
-                for(var i=0;i<maps.length;i++){
-                    var mrcsrc = maps[i].childNodes[1].textContent;
-                    if(mrcsrc==="0101")
-                        total++;
-                }
-                return total;
-            }
-            function resetSelectElement(se){
-                se.selectedIndex = -1;
-            }
-            var fldVarPair = [
-              ["nodeid", "map00.nodeid"],
-              ["mrcsrc",     "map00.mrcsrc"],
-              ["vartype",   "map00.vartype"],
-              ["start",   "map00.start"],
-              ["num", "map00.num"],
+            return total;
+        }
+        function resetSelectElement(se){
+            se.selectedIndex = -1;
+        }
+        var fldVarPair = [
+          ["nodeid", "map00.nodeid"],
+          ["mrcsrc",     "map00.mrcsrc"],
+          ["vartype",   "map00.vartype"],
+          ["start",   "map00.start"],
+          ["num", "map00.num"],
         ];
         var option = []
         var sucMap = [];
@@ -270,12 +280,14 @@
               });
         };
         function checkDuplicates(nid,d,cb){
+            var total = 0;
             var stopped = false;
             var loadsLeft = 0;
             var checksLeft = 0;
             checkIsValid(0,100,function(reply){
                 checksLeft++;
                 if(reply.slice(-1)==1){
+                    total++;
                     fldVarPair = [
                         ["nodeid",reply.slice(0,6)+"nodeid"],
                         ["did",reply.slice(0,6)+"did"]
@@ -295,8 +307,10 @@
                         }
                     })
                 }
-                
-            })
+            });
+            if(total == 0){
+                cb(false);
+            }
         }
         var master = [];
         function asyncFunction (item, cb) {
@@ -340,61 +354,145 @@
                         var a = rep.split(',');
                         var nodeid = a[0].slice(-2);
                         var did = a[1].slice(-8);
+                        var deviceName, datasetName;
                         if(parseInt(did) && used.indexOf(did.slice(1,6)+nodeid)==-1){
                             var id = did.slice(1,4);
                             for(var i=0;i<devices.length;i++){
                                 if(devices[i].id === id){
-                                    document.getElementById('devSel').selectedIndex = i.toString();
+                                    deviceName = document.getElementById('devSel').options[i].text;
                                     break;
                                 }
                             }
-                            var ind = did.slice(4,6)
-                            document.getElementById('dataSel').selectedIndex = ind;
+                            var ind = did.slice(4,6);
+                            var indexAdjusted = parseInt("0x"+ind);
+                            var datasetID;
+                            for(var i=0;i<devices.length;i++){
+                                if(devices[i].id===id){
+                                    datasetID = devices[i].datasets[indexAdjusted];
+                                    break;
+                                }
+                            }
+                            var dtd = binSearchData(datasetID,0,datasets.length-1,datasets)
+                            datasetName = dtd.dataname;
                             used.push(did.slice(1,6)+nodeid);
-                            cleanDisplay();
+                            populateExistingGroup(deviceName, datasetName, nodeid);
                         }
                     })
                 };
             })
         }
-        </script>
-    </head>
-    <body onload="ready()" style="overflow:scroll;">
-        <div id="config-container">
-            <select size="3" class="groupSel" id="devSel">
-                <optgroup label="Device"></optgroup>
-            </select>
-            <select size="3" class="groupSel" id="dataSel" onChange="previewText()">
-                <optgroup label="Dataset"></optgroup>
-            </select>
-            <center>
-                <div id="addGroup" class="save" style="width:200px;display:block;margin-top:5px;height:30%" type="button" onclick="addGroup();">Add Group<input onkeyup="fillNodeID(this.value)" placeholder="Node ID" type="text" style="width:150px;text-align:center;" id="nid"/></div>
-            </center>
-        </div>
-        <div id="preview-container">
-            <strong><p id="hiddenText" style="line-height:.2;display:none"></p></strong>
-            <strong><p id="previewText" style="line-height:.2">Preview</p></strong>
-            <table width="100%" id="previewTab">
-                <tr>
-                    <th >Node ID</th>
-                    <th>MRC/SRC</th>
-                    <th>Var Type</th>
-                    <th>Start Addr</th>
-                    <th>Num Elements</th>
-                    <th style="display:none">Index Stuff</th>
-                </tr>
-            </table>
-        </div>
+        function cleanDisplay(){
+            var div = document.createElement('div');
+            div.setAttribute('class','grouping '+index);
 
-        <div id="result-container">
-            <h2 id="post_status">Current Groups</h2>
-            <div class="side-contain" id="input-contain">
-                <h3>Input</h3>
-            </div>
-            <div class="side-contain" id="output-contain">
-                <h3>Output</h3>
-            </div>
-        </div>
-        
-    </body>
+            var img = document.createElement('img')
+            img.setAttribute('class','grouping-delete');
+            img.setAttribute('src','pics/trash.png');
+            img.setAttribute('onclick','deleteGroupings(this.parentElement)')
+            img.setAttribute('width','50px');
+            img.setAttribute('height','auto')
+
+            var head = document.createElement('h3')
+            head.setAttribute('style','color:white')
+            head.innerHTML = 'Group'
+
+            var name = document.createElement('p');
+            var devSel = document.getElementById("devSel");
+            name.innerHTML = "Device: "+ devSel.options[devSel.selectedIndex].text;
+
+            var data = document.createElement('p');
+            var dataSel = document.getElementById("dataSel");
+            data.innerHTML = "Dataset: "+ dataSel.options[dataSel.selectedIndex].text;
+
+            var maps = document.createElement('p');
+            var mps = document.getElementsByClassName('mapRow')
+            var reads = countReads(mps);
+            var writes = mps.length-reads;
+            maps.innerHTML = reads+" Mappings"
+
+            var nid = document.createElement('p');
+            nid.innerHTML = "Node ID: "+mps[0].childNodes[0].textContent;
+
+            div.appendChild(img);
+            div.appendChild(head);
+            div.appendChild(name);
+            div.appendChild(data);
+            div.appendChild(maps);
+            div.appendChild(nid);
+            for(var i = 0; i < mps.length; i++){
+                mps[i].parentNode.removeChild(mps[i])
+            }
+            var clone = div.cloneNode(true);
+            clone.childNodes[4].innerHTML = writes+" Mappings";
+            if(reads){
+                document.getElementById('input-contain').appendChild(div);
+            }
+            if(writes){
+                document.getElementById('output-contain').appendChild(clone);
+            }
+            index++;
+//            var changes = document.getElementsByClassName('grouping '+(index-2));
+//            for(var i=0;i<changes.length;i++){
+//                changes[i].childNodes[0].remove();
+//            }
+            document.getElementById('previewText').innerHTML="Preview";
+            resetSelectElement(document.getElementById('devSel'));
+            removeAllOptions(document.getElementById("dataSel"));
+        }
+        function populateExistingGroup(deviceName, datasetName, nodeid){
+            var div = document.createElement('div');
+            div.setAttribute('class','grouping '+index);
+
+            var img = document.createElement('img')
+            img.setAttribute('class','grouping-delete');
+            img.setAttribute('src','pics/trash.png');
+            img.setAttribute('onclick','deleteGroupings(this.parentElement)')
+            img.setAttribute('width','50px');
+            img.setAttribute('height','auto')
+
+            var head = document.createElement('h3')
+            head.setAttribute('style','color:white')
+            head.innerHTML = 'Group'
+
+            var name = document.createElement('p');
+            name.innerHTML = "Device: "+ deviceName;
+
+            var data = document.createElement('p');
+            data.innerHTML = "Dataset: "+ datasetName
+
+//            var maps = document.createElement('p');
+//            var mps = document.getElementsByClassName('mapRow')
+//            var reads = countReads(mps);
+//            var writes = mps.length-reads;
+//            maps.innerHTML = reads+" Mappings"
+
+            var nid = document.createElement('p');
+            nid.innerHTML = "Node ID: "+ nodeid;
+            
+            div.appendChild(img);
+            div.appendChild(head);
+            div.appendChild(name);
+            div.appendChild(data);
+//            div.appendChild(maps);
+            div.appendChild(nid);
+//            for(var i = 0; i < mps.length; i++){
+//                mps[i].parentNode.removeChild(mps[i])
+//            }
+//            var clone = div.cloneNode(true);
+//            clone.childNodes[4].innerHTML = writes+" Mappings";
+//            if(reads){
+                document.getElementById('input-contain').appendChild(div);
+//            }
+//            if(writes){
+//                document.getElementById('output-contain').appendChild(clone);
+//            }
+            index++;
+//            var changes = document.getElementsByClassName('grouping '+(index-2));
+//            for(var i=0;i<changes.length;i++){
+//            changes[i].childNodes[0].remove();
+//            }document.getElementById('previewText').innerHTML="Preview";
+            resetSelectElement(document.getElementById('devSel'));
+            removeAllOptions(document.getElementById("dataSel"));    
+        }
+    </script>
 </html>
