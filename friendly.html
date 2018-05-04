@@ -374,8 +374,17 @@
                             }
                             var dtd = binSearchData(datasetID,0,datasets.length-1,datasets)
                             datasetName = dtd.dataname;
+                            var numMappings = dtd.mappings.length;
+                            var firstMapID = dtd.mappings[0];
+                            var mapIsRead;
+                            for(var i = 0; i < mappings.length; i++){
+                                if(mappings[i].id === firstMapID){
+                                    mapIsRead = mappings[i].mrcsrc == "0101" ? true : false;
+                                    break;
+                                }
+                            }
                             used.push(did.slice(1,6)+nodeid);
-                            populateExistingGroup(deviceName, datasetName, nodeid);
+                            populateExistingGroup(deviceName, datasetName, nodeid, numMappings, mapIsRead);
                         }
                     })
                 };
@@ -439,7 +448,7 @@
             resetSelectElement(document.getElementById('devSel'));
             removeAllOptions(document.getElementById("dataSel"));
         }
-        function populateExistingGroup(deviceName, datasetName, nodeid){
+        function populateExistingGroup(deviceName, datasetName, nodeid, numMappings, read){
             var div = document.createElement('div');
             div.setAttribute('class','grouping '+index);
 
@@ -458,13 +467,19 @@
             name.innerHTML = "Device: "+ deviceName;
 
             var data = document.createElement('p');
-            data.innerHTML = "Dataset: "+ datasetName
+            data.innerHTML = "Dataset: "+ datasetName;
+            
+            //count maps associated with dataset
+            
+            //see if maps are read or write
+            //paste in accordingly
+            
 
-//            var maps = document.createElement('p');
+            var maps = document.createElement('p');
 //            var mps = document.getElementsByClassName('mapRow')
 //            var reads = countReads(mps);
 //            var writes = mps.length-reads;
-//            maps.innerHTML = reads+" Mappings"
+            maps.innerHTML = numMappings+" Mappings"
 
             var nid = document.createElement('p');
             nid.innerHTML = "Node ID: "+ nodeid;
@@ -473,19 +488,19 @@
             div.appendChild(head);
             div.appendChild(name);
             div.appendChild(data);
-//            div.appendChild(maps);
+            div.appendChild(maps);
             div.appendChild(nid);
 //            for(var i = 0; i < mps.length; i++){
 //                mps[i].parentNode.removeChild(mps[i])
 //            }
 //            var clone = div.cloneNode(true);
 //            clone.childNodes[4].innerHTML = writes+" Mappings";
-//            if(reads){
+            if(read){
                 document.getElementById('input-contain').appendChild(div);
-//            }
-//            if(writes){
-//                document.getElementById('output-contain').appendChild(clone);
-//            }
+            }
+            else{
+                document.getElementById('output-contain').appendChild(div);
+            }
             index++;
 //            var changes = document.getElementsByClassName('grouping '+(index-2));
 //            for(var i=0;i<changes.length;i++){
