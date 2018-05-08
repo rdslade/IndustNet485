@@ -63,6 +63,7 @@
                           return false;
                       }
                   }
+                  document.getElementById('force'+num).disabled = true;
                   procPostReply(reply); //if post is successful or forced continue processing the reply and setting map
                   
               });
@@ -142,6 +143,7 @@
             document.getElementById('submit'+num).disabled = true;
             document.getElementById('edit'+num).disabled = true;
             document.getElementById('del'+num).disabled = true;
+            document.getElementById('force'+num).disabled = true;
         }
         function initPage(){ //called to initiate the 100 static rows of the mapping table
             for(var i=0;i<100;i++){ //100 rows
@@ -277,6 +279,7 @@
             }
             if(num==0 || num==-1){
                 document.getElementById('submit'+r).disabled = true;
+                document.getElementById('force'+r).disabled = true;
                 if(document.getElementById('cancel'+r)){
                     document.getElementById('cancel'+r).id="edit"+r;
                     document.getElementById('edit'+r).value = "Edit";
@@ -285,6 +288,7 @@
             }
             else if(num==1){
                 document.getElementById('submit'+r).disabled = false;
+                document.getElementById('force'+r).disabled = false;
                 document.getElementById('edit'+r).value = "Cancel";
                 document.getElementById('edit'+r).id = 'cancel'+r;  
             }
