@@ -19,6 +19,7 @@
                 <th class="mappingh">Start Address (0000-FFFF)</th>
                 <th class="mappingh"># of Elements (0000-FFFF)</th>
                 <th class="mappingh">Submit Mapping</th>
+                <th class="mappingh">Force Mapping</th>
                 <th class="mappingh">Edit Mapping</th>
                 <th class="mappingh">Delete Mapping</th>
                 <th class="mappingh">Mapping Type</th>
@@ -43,7 +44,7 @@
           var header = "map"+num+".";
           var list = ['nodeid','mrcsrc','vartype','start','num']
           var data = "";
-          if(type==="submit"){
+          if(type==="submit" || type==="force"){
               var inputs = document.getElementsByClassName('input'+num);
               for(var i=0;i<inputs.length;i++){
                   if(!validateField(i+2,inputs[i])){ //if fields have not been entered incorrectly
@@ -55,14 +56,15 @@
               data+=header+"did"+"="+"00000000";
               addRowText(num); //add post status text beneath current row
               HTTP.post("cgi-bin/set_map", data, function(reply){
-                  if(reply && reply.slice(0,5).toLowerCase()==="error"){ //if the post has an error
-                      setPostStatus(reply);
-                      changeRowState(num,1);
-                      return false;
+                  if(type === "submit"){
+                      if(reply && reply.slice(0,5).toLowerCase()==="error"){ //if the post has an error
+                          setPostStatus(reply);
+                          changeRowState(num,1);
+                          return false;
+                      }
                   }
-                  else{
-                      procPostReply(reply); //if post is successful continue processing the reply and setting map
-                  }
+                  procPostReply(reply); //if post is successful or forced continue processing the reply and setting map
+                  
               });
               
               setTimeout(function(){
@@ -158,6 +160,7 @@
                 var cell7 = row.insertCell(7);
                 var cell8 = row.insertCell(8);
                 var cell9 = row.insertCell(9);
+                var cell10 = row.insertCell(10);
                 
                 var txt = document.createElement('p');
                 var n = document.createTextNode(i);
@@ -214,25 +217,32 @@
                 submit.setAttribute('onclick','processForm(this.id)')
                 cell6.appendChild(submit); //submit button
                 
+                var force = document.createElement('input');
+                force.setAttribute('type','button');
+                force.setAttribute('value','Force');
+                force.setAttribute('id','force'+i);
+                force.setAttribute('onclick','processForm(this.id)')
+                cell7.appendChild(force); //force button
+                
                 var edit = document.createElement('input');
                 edit.setAttribute('type','button');
                 edit.setAttribute('value','Edit');
                 edit.setAttribute('id','edit'+i);
                 edit.setAttribute('onclick','processForm(this.id)')
-                cell7.appendChild(edit); //edit button
+                cell8.appendChild(edit); //edit button
                 
                 var del = document.createElement('input');
                 del.setAttribute('type','button');
                 del.setAttribute('value','Delete');
                 del.setAttribute('id','del'+i);
                 del.setAttribute('onclick','processForm(this.id)')
-                cell8.appendChild(del); //delete button
+                cell9.appendChild(del); //delete button
                 
                 var maporigin = document.createElement('p');
                 var m = document.createTextNode('Custom');
                 maporigin.appendChild(m)
                 maporigin.setAttribute('id','maporigin'+i)
-                cell9.appendChild(maporigin);
+                cell10.appendChild(maporigin);
             }
         }
         function changeRowState(r,num){ //changes the style of the row depending on if it has been submitted, edited, ect.
