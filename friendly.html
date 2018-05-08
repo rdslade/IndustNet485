@@ -217,6 +217,7 @@
                     break;
                 }
             }
+            var nodeid = div.childNodes[5].innerHTML.split("Node ID: ")[1];
             for(var i=0;i<devices.length;i++){
                 if(devices[i].id===dev){
                     var index = devices[i].datasets.indexOf(data);
@@ -232,8 +233,16 @@
                                 HTTP.post("cgi-bin/del_map","map="+e,procPostReply)
                         })
                     })
+                    var otherSideID = (div.parentElement.id === "input-contain") ? "output-contain" : "input-contain";
+                    var otherSideElem = document.getElementById(otherSideID).children;
+                    for(var i = 0; i < otherSideElem.length; ++i){
+                        var possRemove = otherSideElem[i];
+                        if(possRemove.className === div.className){
+                            possRemove.parentElement.removeChild(possRemove);
+                        }
+                    }
                     div.parentElement.removeChild(div);
-                    //setTimeout(function(){location.reload()},3000);
+                    --index;
                 }
             }
         }
@@ -382,17 +391,23 @@
                             }
                             var dtd = binSearchData(datasetID,0,datasets.length-1,datasets)
                             datasetName = dtd.dataname;
-                            var numMappings = dtd.mappings.length;
-                            var firstMapID = dtd.mappings[0];
+                            var mapsWithCur = dtd.mappings;
+                            var numMappings = mapsWithCur.length;
+                            var numReads = 0;
                             var mapIsRead;
-                            for(var i = 0; i < mappings.length; i++){
-                                if(mappings[i].id === firstMapID){
-                                    mapIsRead = mappings[i].mrcsrc == "0101" ? true : false;
-                                    break;
+                            for(var i = 0; i < mapsWithCur.length; i++){
+                                for(var j = 0; j < mappings.length; ++j){
+                                    if(mappings[j].id === mapsWithCur[i]){
+                                        mapIsRead = mappings[j].mrcsrc == "0101" ? true : false;
+                                        if(mapIsRead){
+                                            ++numReads;
+                                        }
+                                        break;
+                                    }
                                 }
                             }
                             used.push(did.slice(1,6)+nodeid);
-                            populateExistingGroup(deviceName, datasetName, nodeid, numMappings, mapIsRead);
+                            populateExistingGroup(deviceName, datasetName, nodeid, numMappings, numReads);
                         }
                     })
                 };
@@ -411,7 +426,7 @@
 
             var head = document.createElement('h3')
             head.setAttribute('style','color:white')
-            head.innerHTML = 'Group'
+            head.innerHTML = 'Group'+index; //one grouping should have same number listed on both sides if necessary
 
             var name = document.createElement('p');
             var devSel = document.getElementById("devSel");
@@ -456,7 +471,7 @@
             resetSelectElement(document.getElementById('devSel'));
             removeAllOptions(document.getElementById("dataSel"));
         }
-        function populateExistingGroup(deviceName, datasetName, nodeid, numMappings, read){
+        function populateExistingGroup(deviceName, datasetName, nodeid, numMappings, reads){
             var div = document.createElement('div');
             div.setAttribute('class','grouping '+index);
 
@@ -484,10 +499,8 @@
             
 
             var maps = document.createElement('p');
-//            var mps = document.getElementsByClassName('mapRow')
-//            var reads = countReads(mps);
-//            var writes = mps.length-reads;
-            maps.innerHTML = numMappings+" Mappings"
+            var writes = numMappings-reads;
+            maps.innerHTML = reads+" Mappings"
 
             var nid = document.createElement('p');
             nid.innerHTML = "Node ID: "+ nodeid;
@@ -501,13 +514,15 @@
 //            for(var i = 0; i < mps.length; i++){
 //                mps[i].parentNode.removeChild(mps[i])
 //            }
-//            var clone = div.cloneNode(true);
-//            clone.childNodes[4].innerHTML = writes+" Mappings";
-            if(read){
+            var clone = div.cloneNode(true);
+            clone.childNodes[4].innerHTML = writes+" Mappings";
+            if(reads){
                 document.getElementById('input-contain').appendChild(div);
             }
-            else{
-                document.getElementById('output-contain').appendChild(div);
+            if(writes){
+                var clone = div.cloneNode(true);
+                clone.childNodes[4].innerHTML = writes+" Mappings";
+                document.getElementById('output-contain').appendChild(clone);
             }
             index++;
 //            var changes = document.getElementsByClassName('grouping '+(index-2));
