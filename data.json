@@ -2,6 +2,13 @@
   "devs": [
     {
       "id": "001",
+      "devname": "AAAAA",
+      "datasets": [
+        "0001"
+      ]
+    },
+    {
+      "id": "002",
       "devname": "E5_C",
       "datasets": [
         "0001",
@@ -28,10 +35,28 @@
       ]
     },
     {
-      "id": "002",
+      "id": "003",
       "devname": "E5_C-T",
       "datasets": [
-        "0001"
+        "0001",
+        "0002",
+        "0016",
+        "000C",
+        "000C",
+        "0008",
+        "0009",
+        "0010",
+        "0011",
+        "000E",
+        "000F",
+        "0014",
+        "0015",
+        "000A",
+        "000B",
+        "0017",
+        "0018",
+        "0019",
+        "001A"
       ]
     }
   ],
@@ -40,9 +65,7 @@
       "id": "0001",
       "dataname": "Status1",
       "mappings": [
-        "0001",
-        "0002",
-        "0003"
+        "0001"
       ]
     },
     {
@@ -187,16 +210,37 @@
     },
     {
       "id": "0016",
-      "dataname": "Status2",
+      "dataname": "Program Status",
       "mappings": [
-        "0003"
+        "0016"
       ]
     },
     {
       "id": "0017",
-      "dataname": "Program Status",
+      "dataname": "Program - Read",
       "mappings": [
-        "0016"
+        "0017"
+      ]
+    },
+    {
+      "id": "0018",
+      "dataname": "Program - Write",
+      "mappings": [
+        "0018"
+      ]
+    },
+    {
+      "id": "0019",
+      "dataname": "Program/Profile Set Up - Read",
+      "mappings": [
+        "0019"
+      ]
+    },
+    {
+      "id": "001A",
+      "dataname": "Program/Profile Set Up - Write",
+      "mappings": [
+        "001A"
       ]
     }
   ],
@@ -204,9 +248,9 @@
     {
       "id": "0001",
       "mrcsrc": "0101",
-      "vartype": "80",
+      "vartype": "C0",
       "start": "0000",
-      "num": "0014"
+      "num": "0012"
     },
     {
       "id": "0002",
@@ -238,7 +282,7 @@
     },
     {
       "id": "0006",
-      "mrcsrc": "0102",
+      "mrcsrc": "0101",
       "vartype": "81",
       "start": "000E",
       "num": "0004"
@@ -354,6 +398,35 @@
       "vartype": "80",
       "start": "0014",
       "num": "0009"
+    },
+    {
+      "id": "0017",
+      "mrcsrc": "0101",
+      "vartype": "81",
+      "start": "004E",
+      "num": "0004"
+    },
+    {
+      "id": "0018",
+      "mrcsrc": "0102",
+      "vartype": "81",
+      "start": "004E",
+      "num": "0004"
+    },
+    {
+      "id": "0019",
+      "mrcsrc": "0101",
+      "vartype": "84",
+      "start": "0000",
+      "num": "001C"
+    },
+    {
+      "id": "001A",
+      "mrcsrc": "0102",
+      "vartype": "84",
+      "start": "0000",
+      "num": "001C"
     }
   ]
 }
+

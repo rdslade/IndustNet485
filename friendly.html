@@ -127,7 +127,7 @@
             }
         }
         function binSearchData(val,min,max,list){
-            var mid = Math.floor((min+max)/2);
+            var mid = min + Math.floor((max - min)/2);
             var guess = list[mid].id
             var adjustedHexGuess = parseInt("0x"+guess);
             var adjustedHexVal = parseInt("0x"+val);
@@ -190,8 +190,14 @@
                         }
                     });
                 }
-                else
-                    document.getElementById('post_status').innerHTML = "Error: cannot set duplicate groupings"
+                else{
+                    var post_status = document.getElementById("post_status");
+                    post_status.style.visibility = "visible";
+                    post_status.innerHTML = "Error: cannot set duplicate groupings";
+                    setTimeout(function(){
+                        document.getElementById('post_status').innerHTML = "Current Groups"
+                    },3000);   
+                }
             })
         }
         function deleteGroupings(div){
@@ -283,9 +289,9 @@
             var total = 0;
             var stopped = false;
             var loadsLeft = 0;
-            var checksLeft = 0;
+            var checks = 0;
             checkIsValid(0,100,function(reply){
-                checksLeft++;
+                checks++;
                 if(reply.slice(-1)==1){
                     total++;
                     fldVarPair = [
@@ -307,10 +313,12 @@
                         }
                     })
                 }
+                else{
+                    if(checks == 100 && total == 0){
+                        cb(false);
+                    }
+                }
             });
-            if(total == 0){
-                cb(false);
-            }
         }
         var master = [];
         function asyncFunction (item, cb) {
