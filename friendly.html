@@ -217,6 +217,7 @@
                     break;
                 }
             }
+            var nodeid = div.childNodes[5].innerHTML.split("Node ID: ")[1];
             for(var i=0;i<devices.length;i++){
                 if(devices[i].id===dev){
                     var index = devices[i].datasets.indexOf(data);
@@ -232,8 +233,16 @@
                                 HTTP.post("cgi-bin/del_map","map="+e,procPostReply)
                         })
                     })
+                    var otherSideID = (div.parentElement.id === "input-contain") ? "output-contain" : "input-contain";
+                    var otherSideElem = document.getElementById(otherSideID).children;
+                    for(var i = 0; i < otherSideElem.length; ++i){
+                        var possRemove = otherSideElem[i];
+                        if(possRemove.className === div.className){
+                            possRemove.parentElement.removeChild(possRemove);
+                        }
+                    }
                     div.parentElement.removeChild(div);
-                    //setTimeout(function(){location.reload()},3000);
+                    --index;
                 }
             }
         }
@@ -411,7 +420,7 @@
 
             var head = document.createElement('h3')
             head.setAttribute('style','color:white')
-            head.innerHTML = 'Group'
+            head.innerHTML = 'Group'+index; //one grouping should have same number listed on both sides if necessary
 
             var name = document.createElement('p');
             var devSel = document.getElementById("devSel");
