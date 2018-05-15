@@ -38,6 +38,28 @@
                 <th class="mappingh"><button onclick="var x = finalValidate(1);sendTestRequest(x)">Validate</button></th>
             </tr>
         </table>
+        
+        <table align='center' id="mapping-table">
+            <tr id="mappingHeader">
+                <th class="mappingh">Node ID (00-99)</th>
+                <th class="mappingh">MRC/SRC (0000-FFFF)</th>
+                <th class="mappingh">Command Code (00-FF)</th>
+                <th class="mappingh">Subcommand Code (00-FF)</th>
+                <th class="mappingh">Validate</th>
+            </tr>
+            <br> <br>
+            <tr class="fields">
+                <th class="mappingh"><input class="input2" onblur="validateField(2,this)" type=text/></th>
+                <th class="mappingh">
+                    <select class="input1">
+                        <option value=3005>3005</option>
+                    </select>
+                </th>
+                <th class="mappingh"><input class="input2" onblur="validateField(4,this)" type=text/></th>
+                <th class="mappingh"><input class="input2"onblur="validateField(4,this)" type=text/></th>
+                <th class="mappingh"><button onclick="var x = finalValidate(2);sendTestRequest(x)" disabled>Validate</button></th>
+            </tr>
+        </table>
         <center>
             <div style="width:50%">
                 <p id="post_status" style="visibility: visible;font-family:monospace;word-wrap:break-word">
